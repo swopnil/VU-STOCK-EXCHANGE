@@ -1,26 +1,30 @@
-<!-- login.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>Login</h1>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="{{ category }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-    <form action="/" method="post">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username"><br>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password"><br>
-        <button type="submit">Login</button>
-    </form>
+    <div class="container">
+        <h1>Login</h1>
+        <form action="{{ url_for('login') }}" method="POST">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required><br>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required><br>
+            <button type="submit">Login</button>
+        </form>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class="flash-messages">
+                    {% for message in messages %}
+                        <li class="flash-message">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+    </div>
 </body>
 </html>

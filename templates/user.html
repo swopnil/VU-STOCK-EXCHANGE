@@ -1,24 +1,47 @@
-<!-- user.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Page</title>
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>User Page</h1>
-    <p>Welcome, User!</p>
-    <p>Available Stocks:</p>
-    <form action="/buy" method="post">
-        <select name="symbol">
-            {% for symbol, data in stocks.items() %}
-                <option value="{{ symbol }}">{{ symbol }} - {{ data['company_name'] }} - ${{ data['price'] }}</option>
-            {% endfor %}
-        </select>
-        <input type="number" name="volume" min="1" value="1">
-        <button type="submit">Buy</button>
-    </form>
-    <a href="/logout">Logout</a>
+    <div class="container">
+        <h1>Hello, {{ username }}</h1>
+        <h2>Available Stocks</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Company Name</th>
+                    <th>Price</th>
+                    <th>Volume</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for symbol, data in stocks.items() %}
+                <tr>
+                    <td>{{ symbol }}</td>
+                    <td>{{ data['company_name'] }}</td>
+                    <td>${{ data['price'] }}</td>
+                    <td>{{ data['volume'] }}</td>
+                    <td>
+                        <form action="{{ url_for('buy', symbol=symbol) }}" method="POST">
+                            <input type="number" name="volume" min="1" max="{{ data['volume'] }}" required>
+                            <button type="submit">Buy</button>
+                        </form>
+                        <form action="{{ url_for('sell', symbol=symbol) }}" method="POST">
+                            <input type="number" name="volume" min="1" required>
+                            <button type="submit">Sell</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <p><a href="{{ url_for('logout') }}">Logout</a></p>
+    </div>
 </body>
 </html>
