@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from datetime import datetime
 
 app = Flask(__name__)
@@ -43,7 +43,6 @@ def logout():
 @app.route('/user')
 def user():
     if 'username' in session and session['username'] == "user":  
-        print("HELLO USER")
         return render_template('user.html', username=session['username'], stocks=stocks)
     else:
         return redirect(url_for('login'))
@@ -51,7 +50,6 @@ def user():
 @app.route('/admin')
 def admin():
     if 'username' in session and session['username'] == "admin": 
-        print("HELLO")
         return render_template('admin.html', username=session['username'], stocks=stocks)
     else:
         return redirect(url_for('login'))
@@ -81,6 +79,16 @@ def sell(symbol):
             flash('Stock not found', 'error')
     return redirect(url_for('user'))
 
+@app.route('/prices')
+def get_prices():
+    # Fetch real-time prices for all stocks
+    real_time_prices = {}
+    for symbol, data in stocks.items():
+        # Logic to fetch real-time prices for each stock
+        # For demonstration purposes, let's assume you have a function `get_real_time_price(symbol)`
+        # that fetches the real-time price for a given stock symbol
+        real_time_prices[symbol] = get_real_time_price(symbol)
+    return jsonify(real_time_prices)
 
 @app.route('/add_stock', methods=['POST'])
 def add_stock():
@@ -97,6 +105,19 @@ def add_stock():
     else:
         flash('Unauthorized access', 'error')
     return redirect(url_for('admin'))
-
+def get_real_time_price(symbol):
+    # Your code to fetch real-time price for the given symbol goes here
+    # This could involve querying an API or database
+    
+    # For demonstration, let's assume you have a dictionary of real-time prices
+    real_time_prices = {
+        'AAPL': 135.50,
+        'GOOGL': 2345.67,
+        'MSFT': 251.34,
+        # Add more symbols and corresponding prices as needed
+    }
+    
+    # Return the real-time price for the given symbol
+    return real_time_prices.get(symbol)
 if __name__ == '__main__':
     app.run(debug=True)
