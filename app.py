@@ -26,7 +26,10 @@ def login():
         if username in users and users[username] == password:
             session['username'] = username
             flash('You were successfully logged in', 'success')
-            return redirect(url_for('user'))
+            if username == "user":
+                return redirect(url_for('user'))
+            elif username == "admin":
+                return redirect(url_for('admin'))
         else:
             flash('Invalid username or password', 'error')
     return render_template('login.html')
@@ -39,8 +42,17 @@ def logout():
 
 @app.route('/user')
 def user():
-    if 'username' in session:
+    if 'username' in session and session['username'] == "user":  
+        print("HELLO USER")
         return render_template('user.html', username=session['username'], stocks=stocks)
+    else:
+        return redirect(url_for('login'))
+
+@app.route('/admin')
+def admin():
+    if 'username' in session and session['username'] == "admin": 
+        print("HELLO")
+        return render_template('admin.html', username=session['username'], stocks=stocks)
     else:
         return redirect(url_for('login'))
 
@@ -68,6 +80,23 @@ def sell(symbol):
         else:
             flash('Stock not found', 'error')
     return redirect(url_for('user'))
+
+
+@app.route('/add_stock', methods=['POST'])
+def add_stock():
+    if 'username' in session and session['username'] == "admin":
+        symbol = request.form['symbol']
+        company_name = request.form['company_name']
+        price = float(request.form['price'])
+        volume = int(request.form['volume'])
+        if symbol not in stocks:
+            stocks[symbol] = {'company_name': company_name, 'price': price, 'volume': volume}
+            flash(f'Stock {symbol} added successfully', 'success')
+        else:
+            flash('Stock already exists', 'error')
+    else:
+        flash('Unauthorized access', 'error')
+    return redirect(url_for('admin'))
 
 if __name__ == '__main__':
     app.run(debug=True)

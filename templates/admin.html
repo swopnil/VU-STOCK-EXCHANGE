@@ -15,6 +15,20 @@
             <li>{{ symbol }}: {{ data['company_name'] }} - ${{ data['price'] }} (Volume: {{ data['volume'] }})</li>
         {% endfor %}
     </ul>
+    
+    <!-- Form for adding new stock -->
+    <form action="{{ url_for('add_stock') }}" method="post">
+        <label for="symbol">Symbol:</label>
+        <input type="text" id="symbol" name="symbol" required><br>
+        <label for="company_name">Company Name:</label>
+        <input type="text" id="company_name" name="company_name" required><br>
+        <label for="price">Price:</label>
+        <input type="number" id="price" name="price" required><br>
+        <label for="volume">Volume:</label>
+        <input type="number" id="volume" name="volume" required><br>
+        <input type="submit" value="Add Stock">
+    </form>
+
     <a href="/logout">Logout</a>
 </body>
 </html>
