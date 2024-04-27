@@ -1,104 +1,95 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
-    <div class="container">
-        <h1>Hello, {{ username }}</h1>
-        <h2>Available Stocks</h2>
-        <select id="stockSelect" onchange="updateGraph()">
-            {% for symbol, data in stocks.items() %}
-                <option value="{{ symbol }}">{{ symbol }}</option>
-            {% endfor %}
-        </select>
-        <canvas id="stockChart" width="800" height="400"></canvas>
-        <table>
-            <thead>
-                <tr>
-                    <th>Symbol</th>
-                    <th>Company Name</th>
-                    <th>Price</th>
-                    <th>Volume</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for symbol, data in stocks.items() %}
-                <tr>
-                    <td>{{ symbol }}</td>
-                    <td>{{ data['company_name'] }}</td>
-                    <td>${{ data['price'] }}</td>
-                    <td>{{ data['volume'] }}</td>
-                    <td>
-                        <form action="{{ url_for('buy', symbol=symbol) }}" method="POST">
-                            <input type="number" name="volume" min="1" max="{{ data['volume'] }}" required>
-                            <button type="submit">Buy</button>
-                        </form>
-                        <form action="{{ url_for('sell', symbol=symbol) }}" method="POST">
-                            <input type="number" name="volume" min="1" required>
-                            <button type="submit">Sell</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <p><a href="{{ url_for('logout') }}">Logout</a></p>
-    </div>
-    <script>
-        var ctx = document.getElementById('stockChart').getContext('2d');
-        var stockChart;
+import tkinter as tk
+from tkinter import ttk, messagebox
+import json
+import matplotlib.pyplot as plt
+from datetime import datetime
 
-        function updateGraph() {
-            var selectedStock = document.getElementById('stockSelect').value;
-            var stockData = {
-                labels: [],
-                datasets: [{
-                    label: 'Price',
-                    data: [],
-                    fill: false,
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 2
-                }]
-            };
+class App(tk.Tk):
+    def __init__(self):
+        super().__init__()
 
-            // Add real-time prices data for the selected stock
-            {% for symbol, data in stocks.items() %}
-            if ("{{ symbol }}" === selectedStock) {
-                stockData.labels.push("{{ data['company_name'] }}");
-                stockData.datasets[0].data.push({{ data['price'] }});
-            }
-            {% endfor %}
+        self.title("Stock Trading Platform")
+        self.geometry("800x600")  # Set initial size
+        self.minsize(600, 400)    # Set minimum size
 
-            if (stockChart) {
-                stockChart.destroy();
-            }
+        self.frames = {}
 
-            stockChart = new Chart(ctx, {
-                type: 'line',
-                data: stockData,
-                options: {
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero: false
-                            }
-                        }]
-                    }
-                }
-            });
-        }
+        for F in (LoginPage, UserPage, AdminPage):
+            frame = F(self)
+            self.frames[F.__name__] = frame
+            frame.grid(row=0, column=0, sticky="nsew")
 
-        setInterval(updateGraph, 5000); // Update graph every 5 seconds
-        updateGraph(); // Initial update
-    </script>
-</body>
-</html>
+        self.show_frame("LoginPage")
+
+    def show_frame(self, page_name):
+        frame = self.frames[page_name]
+        frame.tkraise()
+
+    def load_stocks(self):
+        try:
+            with open("stocks.json", "r") as f:
+                return json.load(f)
+        except FileNotFoundError:
+            return {}
+
+    def save_stocks(self, stocks):
+        with open("stocks.json", "w") as f:
+            json.dump(stocks, f)
+
+class LoginPage(ttk.Frame):
+    def __init__(self, master):
+        super().__init__(master)
+
+        self.label = ttk.Label(self, text="Login Page", font=("Helvetica", 18, "bold"))
+        self.label.pack(pady=20)
+
+        self.username_label = ttk.Label(self, text="Username:")
+        self.username_label.pack()
+
+        self.username_entry = ttk.Entry(self)
+        self.username_entry.pack()
+
+        self.password_label = ttk.Label(self, text="Password:")
+        self.password_label.pack()
+
+        self.password_entry = ttk.Entry(self, show="*")
+        self.password_entry.pack()
+
+        self.login_button = ttk.Button(self, text="Login", command=self.login)
+        self.login_button.pack(pady=10)
+
+    def login(self):
+        username = self.username_entry.get()
+        password = self.password_entry.get()
+
+        # Assuming simple hardcoded authentication for demonstration
+        if username == "admin" and password == "admin":
+            self.master.show_frame("AdminPage")
+        elif username == "user" and password == "user":
+            self.master.show_frame("UserPage")
+        else:
+            messagebox.showerror("Error", "Invalid username or password")
+
+class UserPage(ttk.Frame):
+    def __init__(self, master):
+        super().__init__(master)
+        self.user_stocks = {}
+        self.stock_labels = {}  # Initialize stock_labels dictionary
+
+        self.label = ttk.Label(self, text="User Page", font=("Helvetica", 18, "bold"))
+        self.label.pack(pady=20)
+
+        self.buy_frame = ttk.Frame(self)
+        self.buy_frame.pack(side="left", padx=20)
+
+        self.buy_label = ttk.Label(self.buy_frame, text="Available Stocks:")
+        self.buy_label.pack()
+
+        self.stocks = self.master.load_stocks()
+        self.stock_vars = {}
+
+        for symbol, data in self.stocks.items():
+            stock_frame = ttk.Frame(self.buy_frame)
             stock_frame.pack(pady=5)
 
             stock_label = ttk.Label(stock_frame, text=f"{symbol}: {data['company_name']} - ${data['price']:.2f}")

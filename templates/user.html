@@ -29,10 +29,10 @@
             </thead>
             <tbody>
                 {% for symbol, data in stocks.items() %}
-                <tr>
+                <tr id="stockRow_{{ symbol }}">
                     <td>{{ symbol }}</td>
                     <td>{{ data['company_name'] }}</td>
-                    <td>${{ data['price'] }}</td>
+                    <td id="price_{{ symbol }}">${{ data['price'] }}</td>
                     <td>{{ data['volume'] }}</td>
                     <td>
                         <form action="{{ url_for('buy', symbol=symbol) }}" method="POST">
@@ -94,7 +94,21 @@
             });
         }
 
-        setInterval(updateGraph, 5000); // Update graph every 5 seconds
+        setInterval(function() {
+            // Fetch updated prices from the server and update the table and graph
+            fetch("/prices")
+            .then(response => response.json())
+            .then(data => {
+                Object.keys(data).forEach(function(symbol) {
+                    var priceElement = document.getElementById("price_" + symbol);
+                    if (priceElement) {
+                        priceElement.innerText = "$" + data[symbol];
+                    }
+                });
+            })
+            .catch(error => console.error('Error:', error));
+        }, 1000); // Update prices every second
+
         updateGraph(); // Initial update
     </script>
 </body>

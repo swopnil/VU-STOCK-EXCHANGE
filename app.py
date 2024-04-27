@@ -60,7 +60,11 @@ def buy(symbol):
         if symbol in stocks:
             volume = int(request.form['volume'])
             if stocks[symbol]['volume'] >= volume:
+                # Calculate the new price after buying
+                buy_ratio = 0.1  # 10% increase when buying
+                new_price = stocks[symbol]['price'] * (1 + buy_ratio)
                 stocks[symbol]['volume'] -= volume
+                stocks[symbol]['price'] = round(new_price, 2)  # Round to 2 decimal places
                 flash(f'You bought {volume} shares of {symbol} successfully', 'success')
             else:
                 flash('Not enough stocks available', 'error')
@@ -73,11 +77,16 @@ def sell(symbol):
     if 'username' in session:
         if symbol in stocks:
             volume = int(request.form['volume'])
+            # Calculate the new price after selling
+            sell_ratio = 0.1  # 10% decrease when selling
+            new_price = stocks[symbol]['price'] * (1 - sell_ratio)
             stocks[symbol]['volume'] += volume
+            stocks[symbol]['price'] = round(new_price, 2)  # Round to 2 decimal places
             flash(f'You sold {volume} shares of {symbol} successfully', 'success')
         else:
             flash('Stock not found', 'error')
     return redirect(url_for('user'))
+
 
 @app.route('/prices')
 def get_prices():
