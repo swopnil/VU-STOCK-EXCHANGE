@@ -36,11 +36,6 @@ class App(tk.Tk):
         with open("stocks.json", "w") as f:
             json.dump(stocks, f)
 
-
-    def show_frame(self, page_name):
-        frame = self.frames[page_name]
-        frame.tkraise()
-
 class LoginPage(ttk.Frame):
     def __init__(self, master):
         super().__init__(master)
@@ -124,14 +119,30 @@ class UserPage(ttk.Frame):
         self.chart_canvas = tk.Canvas(self, bg="white", width=600, height=300)
         self.chart_canvas.pack()
 
-        self.bind("<Visibility>", self.view_chart_auto)  # Automatically display chart when page becomes visible
-        self.owned_stock_listbox.bind("<<ListboxSelect>>", self.view_chart_auto)  # Automatically display chart when stock is selected
+        self.stock_selection_label = ttk.Label(self, text="Select Stock:")
+        self.stock_selection_label.pack()
+
+        self.selected_stock = tk.StringVar()
+        self.stock_dropdown = ttk.Combobox(self, textvariable=self.selected_stock, state="readonly")
+        self.stock_dropdown.pack()
+        self.stock_dropdown.bind("<<ComboboxSelected>>", self.view_chart)
+
+        self.update_stock_dropdown()
+        self.view_chart()  # Initial chart display
+
+        self.bind("<Visibility>", self.view_chart)  # Automatically display chart when page becomes visible
+        self.owned_stock_listbox.bind("<<ListboxSelect>>", self.view_chart)  # Automatically display chart when stock is selected
 
         self.update_owned_stock_list()
-        self.view_chart_auto()  # Initial chart display
 
         self.back_button = ttk.Button(self, text="Back to Login", command=self.go_to_login)
         self.back_button.pack(pady=20)
+
+    def update_stock_dropdown(self):
+        stocks = list(self.stocks.keys())
+        self.stock_dropdown["values"] = stocks
+        if stocks:
+            self.selected_stock.set(stocks[0])
 
     def update_owned_stock_list(self):
         self.owned_stock_listbox.delete(0, tk.END)
@@ -140,54 +151,66 @@ class UserPage(ttk.Frame):
             self.owned_stock_listbox.insert(tk.END, f"{symbol}: {quantity}")
 
     def buy_stock(self, symbol, volume_var):
-        volume = volume_var.get()  
-        stocks = self.master.load_stocks()  
+        volume = volume_var.get()
+        stocks = self.master.load_stocks()
 
         if symbol not in stocks:
             messagebox.showerror("Error", f"Stock {symbol} not found.")
             return
 
-        if stocks[symbol]["volume"] < volume:
+        available_volume = stocks[symbol]["volume"]
+        if available_volume < volume:
             messagebox.showerror("Error", "Not enough stocks available.")
             return
 
+        # Calculate the price change ratio
+        price_change_ratio = volume / available_volume * 0.1
+
+        # Update the price
+        stocks[symbol]["price"] *= (1 + price_change_ratio)
+
+        # Update the prices in the graph
+        for date, price in stocks[symbol]["prices"].items():
+            stocks[symbol]["prices"][date] *= (1 + price_change_ratio)
+
+        # Deduct the purchased volume from available volume
         stocks[symbol]["volume"] -= volume
+
         if symbol in self.user_stocks:
             self.user_stocks[symbol] += volume
         else:
             self.user_stocks[symbol] = volume
 
-        self.master.save_stocks(stocks)  
-        self.update_owned_stock_list()  
+        self.master.save_stocks(stocks)
+        self.update_owned_stock_list()
+        self.view_chart()
 
         messagebox.showinfo("Buy Order", f"Successfully bought {volume} shares of {symbol}.")
 
-    def view_chart_auto(self, event=None):
-        selected_stock = self.owned_stock_listbox.get(tk.ACTIVE).split(":")[0].strip()
+    def view_chart(self, event=None):
+        selected_stock = self.selected_stock.get()
         if selected_stock not in self.stocks:
             return
 
-        prices = self.stocks[selected_stock]["prices"]
+        prices = self.stocks[selected_stock].get("prices", {})
         dates = [datetime.strptime(date, "%Y-%m-%d") for date in prices.keys()]
         prices = list(prices.values())
 
-        try:
-            self.chart_canvas.delete("all")  # Clear previous chart
-            fig, ax = plt.subplots(figsize=(6, 3), dpi=100)
-            ax.plot(dates, prices)
-            ax.set_xlabel("Date")
-            ax.set_ylabel("Price ($)")
-            ax.set_title(f"Stock Prices for {selected_stock}")
-            fig.tight_layout()
+        self.chart_canvas.delete("all")  # Clear previous chart
+        fig, ax = plt.subplots(figsize=(6, 3), dpi=100)
+        ax.plot(dates, prices)
+        ax.set_xlabel("Date")
+        ax.set_ylabel("Price ($)")
+        ax.set_title(f"Stock Prices for {selected_stock}")
+        fig.tight_layout()
 
-            chart_img = fig2img(fig)
-            self.chart_canvas.image = chart_img
-            self.chart_canvas.create_image(0, 0, anchor="nw", image=chart_img)
-        except Exception as e:
-            print("Error:", e)
+        chart_img = fig2img(fig)
+        self.chart_canvas.image = chart_img
+        self.chart_canvas.create_image(0, 0, anchor="nw", image=chart_img)
 
     def go_to_login(self):
         self.master.show_frame("LoginPage")
+
 
 class AdminPage(ttk.Frame):
     def __init__(self, master):
@@ -258,6 +281,7 @@ class AdminPage(ttk.Frame):
     def go_to_login(self):
         self.master.show_frame("LoginPage")
 
+
 def fig2img(fig):
     """Convert matplotlib figure to Tkinter PhotoImage."""
     import io
@@ -268,6 +292,7 @@ def fig2img(fig):
     buf.seek(0)
     img = Image.open(buf)
     return ImageTk.PhotoImage(img)
+
 
 if __name__ == "__main__":
     app = App()
