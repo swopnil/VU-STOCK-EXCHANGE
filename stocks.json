@@ -1,1 +1,17 @@
-{"SE": {"company_name": "Swopnil", "price": 100.02565912906093, "volume": 778}, "SP": {"company_name": "Starboy enterprise", "price": 20.0, "volume": 68}, "SOP": {"company_name": "SOP 500", "price": 50.50731451610342, "volume": 8896, "prices": {}}, "SM": {"company_name": "STARDOM", "price": 10.213594381008765, "volume": 798900, "prices": {}}}
+{
+    "AAPL": {
+        "company_name": "Apple Inc.",
+        "price": 150.0,
+        "volume": 1000
+    },
+    "GOOGL": {
+        "company_name": "Alphabet Inc.",
+        "price": 2500.0,
+        "volume": 500
+    },
+    "MSFT": {
+        "company_name": "Microsoft Corporation",
+        "price": 300.0,
+        "volume": 800
+    }
+}

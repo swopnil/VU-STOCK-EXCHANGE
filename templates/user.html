@@ -1,0 +1,24 @@
+<!-- user.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Page</title>
+</head>
+<body>
+    <h1>User Page</h1>
+    <p>Welcome, User!</p>
+    <p>Available Stocks:</p>
+    <form action="/buy" method="post">
+        <select name="symbol">
+            {% for symbol, data in stocks.items() %}
+                <option value="{{ symbol }}">{{ symbol }} - {{ data['company_name'] }} - ${{ data['price'] }}</option>
+            {% endfor %}
+        </select>
+        <input type="number" name="volume" min="1" value="1">
+        <button type="submit">Buy</button>
+    </form>
+    <a href="/logout">Logout</a>
+</body>
+</html>

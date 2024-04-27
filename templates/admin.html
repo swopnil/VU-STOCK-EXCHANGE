@@ -1,0 +1,20 @@
+<!-- admin.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Page</title>
+</head>
+<body>
+    <h1>Admin Page</h1>
+    <p>Welcome, Admin!</p>
+    <p>Here are the registered stocks:</p>
+    <ul>
+        {% for symbol, data in stocks.items() %}
+            <li>{{ symbol }}: {{ data['company_name'] }} - ${{ data['price'] }} (Volume: {{ data['volume'] }})</li>
+        {% endfor %}
+    </ul>
+    <a href="/logout">Logout</a>
+</body>
+</html>

@@ -74,6 +74,7 @@ class UserPage(ttk.Frame):
     def __init__(self, master):
         super().__init__(master)
         self.user_stocks = {}
+        self.stock_labels = {}  # Initialize stock_labels dictionary
 
         self.label = ttk.Label(self, text="User Page", font=("Helvetica", 18, "bold"))
         self.label.pack(pady=20)
@@ -184,8 +185,17 @@ class UserPage(ttk.Frame):
         self.master.save_stocks(stocks)
         self.update_owned_stock_list()
         self.view_chart()
+        self.update_available_stocks()  # Update available stock information
+
+        # Update the volume variable in the stock_vars dictionary
+        self.stock_vars[symbol].set(stocks[symbol]["volume"])
 
         messagebox.showinfo("Buy Order", f"Successfully bought {volume} shares of {symbol}.")
+
+    def update_available_stocks(self):
+        # Update the labels displaying available stock information
+        for symbol, data in self.stocks.items():
+            self.stock_labels[symbol].configure(text=f"{symbol}: {data['company_name']} - ${data['price']:.2f}")
 
     def view_chart(self, event=None):
         selected_stock = self.selected_stock.get()
@@ -297,4 +307,3 @@ def fig2img(fig):
 if __name__ == "__main__":
     app = App()
     app.mainloop()
-
