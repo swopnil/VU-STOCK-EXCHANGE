@@ -59,11 +59,14 @@ def add_user_to_database(username, password):
 
 # Configure MySQL connection
 db = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    passwd="Hello@hello1",
-    database="Stock"
+    host="stock100-swopnil100-1453.h.aivencloud.com",
+    port=11907,
+    user="avnadmin",
+    passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
+    database="Stock",
+    
 )
+
 
 # Your other Flask routes and functions go here...
 
@@ -84,11 +87,14 @@ stocks = {
 }
 # Configure MySQL connection
 db = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    passwd="Hello@hello1",
-    database="Stock"
+    host="stock100-swopnil100-1453.h.aivencloud.com",
+    port=11907,
+    user="avnadmin",
+    passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
+    database="Stock",
+   
 )
+
 
 # Sample user data (for demonstration)
 users = {'admin': 'admin', 'user': 'user'}
@@ -104,11 +110,14 @@ def get_money():
         username = session['username']
         # Connect to the database and fetch the user's money
         db = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            passwd="Hello@hello1",
-            database="Stock"
-        )
+    host="stock100-swopnil100-1453.h.aivencloud.com",
+    port=11907,
+    user="avnadmin",
+    passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
+    database="Stock",
+   
+)
+
         cursor = db.cursor()
         query = "SELECT money FROM ID WHERE username = %s"
         cursor.execute(query, (username,))
@@ -203,11 +212,14 @@ def user():
 def fetch_available_money(username):
     try:
         db = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            passwd="Hello@hello1",
-            database="Stock"
-        )
+    host="stock100-swopnil100-1453.h.aivencloud.com",
+    port=11907,
+    user="avnadmin",
+    passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
+    database="Stock",
+  
+)
+
         cursor = db.cursor()
         query = "SELECT Money FROM ID WHERE Username = %s"
         cursor.execute(query, (username,))
@@ -284,8 +296,6 @@ def update_my_stocks(username, symbol, volume):
     except Exception as e:
         print("Error updating My Stocks:", e)
         return False
-
-# Function to handle buying stocks
 @app.route('/buy/<symbol>', methods=['POST'])
 def buy(symbol):
     if 'username' in session:
@@ -298,14 +308,16 @@ def buy(symbol):
                 if available_money is not None and available_money >= total_cost:
                     # Deduct the cost of purchased stocks from available money
                     if update_available_money(username, -total_cost):
-                        # Deduct the volume from available stocks
+                        # Increase the price by 10% when buying
+                        buy_ratio = 0.1
+                        new_price = stocks[symbol]['price'] * (1 + buy_ratio)
+                        # Decrease the volume of available stocks
                         stocks[symbol]['volume'] -= volume
-                        # Update the user's "My Stocks" table
-                        if update_my_stocks(username, symbol, volume):
-                            flash(f'You bought {volume} shares of {symbol} successfully', 'success')
-                            return redirect(url_for('user'))
-                        else:
-                            flash('Error updating My Stocks', 'error')
+                        # Update the price in the stocks dictionary
+                        stocks[symbol]['price'] = round(new_price, 2)
+                        flash(f'You bought {volume} shares of {symbol} successfully', 'success')
+                        flash(f'The price increased by {buy_ratio * 100}% due to buying', 'info')
+                        return redirect(url_for('user'))
                     else:
                         flash('Error updating available money', 'error')
                 else:
@@ -336,12 +348,16 @@ def sell(symbol):
                 sale_amount = volume * stocks[symbol]['price']
                 # Update available money
                 if update_available_money(username, sale_amount):
-                    # Update the user's "My Stocks" table
-                    if update_my_stocks(username, symbol, -volume):
-                        flash(f'You sold {volume} shares of {symbol} successfully', 'success')
-                        return redirect(url_for('user'))
-                    else:
-                        flash('Error updating My Stocks', 'error')
+                    # Decrease the price by 10% when selling
+                    sell_ratio = 0.1
+                    new_price = stocks[symbol]['price'] * (1 - sell_ratio)
+                    # Increase the volume of available stocks
+                    stocks[symbol]['volume'] += volume
+                    # Update the price in the stocks dictionary
+                    stocks[symbol]['price'] = round(new_price, 2)
+                    flash(f'You sold {volume} shares of {symbol} successfully', 'success')
+                    flash(f'The price decreased by {sell_ratio * 100}% due to selling', 'info')
+                    return redirect(url_for('user'))
                 else:
                     flash('Error updating available money', 'error')
             else:
@@ -351,6 +367,7 @@ def sell(symbol):
     else:
         flash('Please log in', 'error')
     return redirect(url_for('login'))
+
 
 
 @app.route('/prices/<symbol>')
@@ -382,11 +399,14 @@ def add_stock():
 def get_real_time_price(symbol):
     # Connect to the database
     db = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        passwd="Hello@hello1",
-        database="Stock"
-    )
+    host="stock100-swopnil100-1453.h.aivencloud.com",
+    port=11907,
+    user="avnadmin",
+    passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
+    database="Stock",
+ 
+)
+
     
     # Create a cursor
     cursor = db.cursor(dictionary=True)
