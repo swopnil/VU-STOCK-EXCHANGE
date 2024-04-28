@@ -440,8 +440,8 @@ def sell(symbol):
                     # Decrease the price by 10% when selling
                     sell_ratio = 0.1
                     new_price = stocks[symbol]['price'] * (1 - sell_ratio)
-                    # Increase the volume of available stocks
-                    stocks[symbol]['volume'] += volume
+                    # Decrease the volume of available stocks
+                    stocks[symbol]['volume'] -= volume
                     # Update the price in the stocks dictionary
                     stocks[symbol]['price'] = round(new_price, 2)
                     
