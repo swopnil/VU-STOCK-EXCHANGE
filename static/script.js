@@ -45,11 +45,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Loop through time and price arrays to create chart data for new data points
         for (var i = 0; i < timeArray.length; i++) {
-            chartData.push([timeArray[i], parseFloat(priceArray[i])]);
+            var timestamp = timeArray[i];
+            var formattedTime = Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', timestamp * 1000); // Convert to milliseconds
+            var timeAgo = '';
+
+            var seconds = Math.round((new Date() - timestamp * 1000) / 1000);
+            console.log("Fetched sec:", seconds);
+            if (seconds < 60) {
+                timeAgo = seconds + ' seconds ago';
+            } else if (seconds < 3600) {
+                timeAgo = Math.round(seconds / 60) + ' minutes ago';
+            } else if (seconds < 86400) {
+                timeAgo = Math.round(seconds / 3600) + ' hours ago';
+            } else {
+                timeAgo = Math.round(seconds / 86400) + ' days ago';
+            }
+
+            chartData.push([timestamp, parseFloat(priceArray[i])]);
         }
+        console.log("Fetched time:", timeAgo);
 
         // Sort the chart data by timestamp in ascending order
         chartData.sort((a, b) => a[0] - b[0]);
+        chartData.reverse()
 
         var rangeSelector = {
             selected: 1,
@@ -86,6 +104,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 title: {
                     text: `${companyName} Stock Price`
                 },
+                xAxis: {
+                    labels: {
+                        formatter: function() {
+                            return timeAgo;
+                        }
+                    }
+                },
                 series: [{
                     name: 'Price',
                     data: chartData,
@@ -109,16 +134,12 @@ document.addEventListener('DOMContentLoaded', function() {
         updateGraph(selectedSymbol); // Update the graph with data for the selected stock
     });
 
-    // Event listener for range selector change
-    document.getElementById('rangeSelector').addEventListener('change', function() {
-        selectedRange = this.value; // Update the selected range when the range selector changes
-        updateGraph(selectedSymbol); // Update the graph with data for the selected stock and range
-    });
-
     // Prevent default form submission for buy and sell forms
     document.querySelectorAll('.buy-form, .sell-form').forEach(form => {
         form.addEventListener('submit', function(event) {
             event.preventDefault();
         });
+
     });
+    
 });

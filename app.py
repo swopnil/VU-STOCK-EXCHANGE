@@ -8,7 +8,6 @@ import json
 from talisman import Talisman
 
 
-
 from stock import App
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from datetime import datetime, timedelta
@@ -17,13 +16,176 @@ import threading
 import time
 import json
 import hashlib
+from flask import current_app
 
+def inject_get_and_remove_flash_messages(app):
+    @app.context_processor
+    def utility_processor():
+        def get_and_remove_flash_messages():
+            messages = []
+            for message in get_flashed_messages(with_categories=True):
+                category = message[0]
+                message_text = message[1]
+                messages.append({'category': category, 'message': message_text})
+                session.pop('_flashes', None)
+            return messages
+        return dict(get_and_remove_flash_messages=get_and_remove_flash_messages)
+
+
+from flask import get_flashed_messages, session
 app = Flask(__name__)
+inject_get_and_remove_flash_messages(app)
 
+def get_and_remove_flash_messages():
+    messages = []
+    for message in get_flashed_messages(with_categories=True):
+        category = message[0]
+        message_text = message[1]
+        messages.append({'category': category, 'message': message_text})
+        session.pop('_flashes', None)
+    return messages
 # Function to hash the password using SHA-256
 def hash_password(password):
 
     return hashlib.sha256(password.encode()).hexdigest()
+from bank import process_payment
+from flask import session
+
+from flask import request, redirect, url_for, render_template
+import mysql.connector
+from flask import request, redirect, url_for, render_template
+import mysql.connector
+@app.route('/money')
+def money():
+    return render_template('money.html')
+
+def get_user(card_holder_name):
+    try:
+        db = mysql.connector.connect(
+            host="stock100-swopnil100-1453.h.aivencloud.com",
+            port=11907,
+            user="avnadmin",
+            passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
+            database="Stock"
+        )
+
+        cursor = db.cursor()
+
+        query = "SELECT * FROM bankdata WHERE card_holder_name = %s"
+        cursor.execute(query, (card_holder_name,))
+
+        user_data = cursor.fetchone()
+
+        cursor.close()
+        db.close()
+
+        if user_data:
+            user = {
+                'username': user_data[4],  # Assuming the username is in the second column
+                'balance': user_data[5]    # Assuming the balance is in the third column
+            }
+            return user
+        else:
+            return None
+    except Exception as e:
+        print("Error retrieving user data:", e)
+        return None
+def decrease_balance(username, amount):
+    try:
+        db = mysql.connector.connect(
+            host="stock100-swopnil100-1453.h.aivencloud.com",
+            port=11907,
+            user="avnadmin",
+            passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
+            database="Stock"
+        )
+
+        cursor = db.cursor()
+
+        update_query = "UPDATE bankdata SET balance = balance - %s WHERE card_holder_name = %s AND balance >= %s"
+        cursor.execute(update_query, (amount, username, amount))
+
+        if cursor.rowcount > 0:
+            # Update available money in the ID table
+            update_money_query = "UPDATE ID SET Money = Money + %s WHERE Username = %s"
+            cursor.execute(update_money_query, (amount, username))
+            
+            db.commit()
+            cursor.close()
+            db.close()
+            return True
+        else:
+            db.rollback()
+            cursor.close()
+            db.close()
+            return False
+    except Exception as e:
+        print("Error decreasing balance:", e)
+        return False
+
+   
+
+# Connect to the MySQL database
+db = mysql.connector.connect(
+        host="stock100-swopnil100-1453.h.aivencloud.com",
+        port=11907,
+        user="avnadmin",
+        passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
+        database="Stock"
+    )
+@app.route('/add_money', methods=['GET', 'POST'])
+def add_money():
+    if request.method == 'POST':
+        payment_method = request.form['payment_method']
+        amount = float(request.form['amount'])
+        username = session.get('username')
+
+        if username is None:
+            flash('User not logged in', 'error')
+            return redirect(url_for('login'))
+
+        try:
+            if payment_method == 'credit_card':
+                card_number = request.form['card_number']
+                expiry_date = request.form['expiry_date']
+                cvv = request.form['cvv']
+
+                cursor = db.cursor()
+                query = "SELECT * FROM bankdata WHERE card_number = %s AND expiry_date = %s AND cvv = %s"
+                cursor.execute(query, (card_number, expiry_date, cvv))
+                result = cursor.fetchone()
+                cursor.close()
+                if result:
+                    if decrease_balance(username, amount):
+                        flash(f'Payment of ${amount} successful', 'success')
+                    else:
+                        flash('Error updating balance', 'error')
+            elif payment_method == 'bank':
+                bank_name = request.form['bank_name']
+                account_number = request.form['account_number']
+                routing_number = request.form['routing_number']
+
+                cursor = db.cursor()
+                query = "SELECT * FROM bankdata WHERE bank_name = %s AND account_number = %s AND routing_number = %s"
+                cursor.execute(query, (bank_name, account_number, routing_number))
+                result = cursor.fetchone()
+                cursor.close()
+
+                if result:
+                    if decrease_balance(username, amount):
+                        flash(f'Payment of ${amount} successful', 'success')
+                    else:
+                        flash('Error updating balance', 'error')
+                else:
+                    flash('Invalid bank details', 'error')
+
+        except Exception as e:
+            flash(f'Error: {str(e)}', 'error')
+            # Log the error for debugging purposes
+
+    # Render the add_money.html template with flash messages
+    return render_template('add_money.html')
+
 
 # Add a new route to handle user registration
 @app.route('/register', methods=['GET', 'POST'])
@@ -76,6 +238,8 @@ db = mysql.connector.connect(
 
 csp = {
     'default-src': ["'self'", 'https://code.highcharts.com'],
+    'script-src': ["'self'", "'unsafe-inline'", 'https://code.highcharts.com'],
+
     'style-src': ["'self'", "'unsafe-inline'", 'https://code.highcharts.com']
 }
 talisman = Talisman(app, content_security_policy=csp)

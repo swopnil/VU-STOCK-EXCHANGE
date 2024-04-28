@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Money</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='add.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Add Money</h1>
+        {% for message in get_and_remove_flash_messages() %}
+            <div class="flash-message {{ message.category }}">{{ message.message }}</div>
+        {% endfor %}
+        <form method="POST" action="{{ url_for('add_money') }}">
+            <div>
+                <label for="payment_method">Payment Method:</label>
+                <select id="payment_method" name="payment_method">
+                    <option value="credit_card">Credit Card</option>
+                    <option value="bank">Bank Transfer</option>
+                </select>
+            </div>
+            <div id="payment_fields">
+                <div id="card_fields" style="display: none;">
+                    <label for="card_number">Card Number:</label>
+                    <input type="text" id="card_number" name="card_number" required>
+                    <label for="expiry_date">Expiry Date:</label>
+                    <input type="text" id="expiry_date" name="expiry_date" placeholder="MM/YY" required>
+                    <label for="cvv">CVV:</label>
+                    <input type="text" id="cvv" name="cvv" maxlength="3" required>
+                </div>
+                <div id="bank_fields">
+                    <label for="bank_name">Bank Name:</label>
+                    <input type="text" id="bank_name" name="bank_name" required>
+                    <label for="account_number">Account Number:</label>
+                    <input type="text" id="account_number" name="account_number" required>
+                    <label for="routing_number">Routing Number:</label>
+                    <input type="text" id="routing_number" name="routing_number" required>
+                </div>
+                <label for="amount">Amount:</label>
+                <input type="number" id="amount" name="amount" min="0" step="0.01" required>
+            </div>
+            <button type="submit">Add Money</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const paymentMethodSelect = document.getElementById('payment_method');
+            const cardFields = document.getElementById('card_fields');
+            const bankFields = document.getElementById('bank_fields');
+            const cardNumberInput = document.getElementById('card_number');
+            const expiryDateInput = document.getElementById('expiry_date');
+            const cvvInput = document.getElementById('cvv');
+            const bankNameInput = document.getElementById('bank_name');
+            const accountNumberInput = document.getElementById('account_number');
+            const routingNumberInput = document.getElementById('routing_number');
+
+            // Initially hide the card fields
+            cardFields.style.display = 'none';
+
+            paymentMethodSelect.addEventListener('change', () => {
+                if (paymentMethodSelect.value === 'credit_card') {
+                    cardFields.style.display = 'block';
+                    bankFields.style.display = 'none';
+                    cardNumberInput.required = true;
+                    expiryDateInput.required = true;
+                    cvvInput.required = true;
+                    bankNameInput.required = false;
+                    accountNumberInput.required = false;
+                    routingNumberInput.required = false;
+                } else {
+                    cardFields.style.display = 'none';
+                    bankFields.style.display = 'block';
+                    cardNumberInput.required = false;
+                    expiryDateInput.required = false;
+                    cvvInput.required = false;
+                    bankNameInput.required = true;
+                    accountNumberInput.required = true;
+                    routingNumberInput.required = true;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
