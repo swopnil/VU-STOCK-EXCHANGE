@@ -255,12 +255,46 @@ def fetch_available_money(username):
 
 @app.route('/admin')
 def admin():
-    if 'username' in session and session['username'] == "admin": 
-        return render_template('admin.html', username=session['username'], stocks=stocks)
-    else:
-        flash('Please log in as an admin', 'error')
-        return redirect(url_for('login'))
+   if 'username' in session and session['username'] == "admin": 
+       user_data = fetch_user_data()
+       return render_template('admin.html', username=session['username'], stocks=stocks, user_data=user_data)
+   else:
+       flash('Please log in as an admin', 'error')
+       return redirect(url_for('login'))
+def fetch_user_data():
+   try:
+       cursor = db.cursor(dictionary=True)
+       # Query to fetch user data, their current money, and merged stocks
+       query = """
+       SELECT ID.Username, ID.Money, new_table.Symbol, SUM(new_table.Volume) AS TotalVolume
+       FROM ID 
+       LEFT JOIN new_table ON ID.Username = new_table.Username 
+       GROUP BY ID.Username, ID.Money, new_table.Symbol
+       """
+       cursor.execute(query)
+       rows = cursor.fetchall()
 
+       # Create a dictionary to store user data with merged stocks
+       user_data = {}
+
+       # Process the data and merge stocks for each user
+       for row in rows:
+           username = row['Username']
+           money = row['Money']
+           symbol = row['Symbol']
+           volume = row['TotalVolume']
+           if username not in user_data:
+               user_data[username] = {'Username': username, 'Money': money, 'Stocks': {}}
+           if symbol not in user_data[username]['Stocks']:
+               user_data[username]['Stocks'][symbol] = volume
+           else:
+               user_data[username]['Stocks'][symbol] += volume
+
+       cursor.close()
+       return user_data.values()
+   except Exception as e:
+       print("Error fetching user data:", e)
+       return None
 
 @app.route('/logout')
 def logout():
@@ -451,6 +485,43 @@ def add_stock():
             flash(f'Stock {symbol} added successfully', 'success')
         else:
             flash('Stock already exists', 'error')
+        try:
+            # Connect to the database
+            db = mysql.connector.connect(
+                host="stock100-swopnil100-1453.h.aivencloud.com",
+                port=11907,
+                user="avnadmin",
+                passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
+                database="Stock",
+            )
+            # Create a cursor
+            cursor = db.cursor()
+            # Create the table if it doesn't exist
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS stocks_list (
+                    ID INT AUTO_INCREMENT PRIMARY KEY,
+                    Symbol VARCHAR(10),
+                    CompanyName VARCHAR(255),
+                    Price FLOAT,
+                    Volume INT
+                )
+            """)
+            # Insert the new stock data into the table
+            cursor.execute("INSERT INTO stocks_list (Symbol, CompanyName, Price, Volume) VALUES (%s, %s, %s, %s)", (symbol, company_name, price, volume))
+    
+            # Commit the transaction
+            db.commit()
+
+            # Close the cursor and database connection
+            cursor.close()
+            db.close()
+
+            flash(f'Stock {symbol} added successfully', 'success')
+
+        except Exception as e:
+            print("Error adding stock:", e)
+            flash('Error adding stock', 'error')
+        
     else:
         flash('Unauthorized access', 'error')
     return redirect(url_for('admin'))
