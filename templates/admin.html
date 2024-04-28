@@ -1,34 +1,136 @@
+
+
 <!-- admin.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Page</title>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+   <title>Admin Page</title>
+
+   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+   
 </head>
 <body>
-    <h1>Admin Page</h1>
-    <p>Welcome, Admin!</p>
-    <p>Here are the registered stocks:</p>
-    <ul>
-        {% for symbol, data in stocks.items() %}
-            <li>{{ symbol }}: {{ data['company_name'] }} - ${{ data['price'] }} (Volume: {{ data['volume'] }})</li>
-        {% endfor %}
-    </ul>
-    
-    <!-- Form for adding new stock -->
-    <form action="{{ url_for('add_stock') }}" method="post">
-        <label for="symbol">Symbol:</label>
-        <input type="text" id="symbol" name="symbol" required><br>
-        <label for="company_name">Company Name:</label>
-        <input type="text" id="company_name" name="company_name" required><br>
-        <label for="price">Price:</label>
-        <input type="number" id="price" name="price" required><br>
-        <label for="volume">Volume:</label>
-        <input type="number" id="volume" name="volume" required><br>
-        <input type="submit" value="Add Stock">
-    </form>
+   <h1 id="welcome">Admin Page</h1>
+   <p>Welcome, Admin!</p>
+   <div class="stocks-section">
+       <div class="stocks-registered">
+           <p>Here are the registered stocks:</p>
+           <ul>
+               {% for symbol, data in stocks.items() %}
+                   <li>{{ symbol }}: {{ data['company_name'] }} - ${{ data['price'] }} (Volume: {{ data['volume'] }})</li>
+               {% endfor %}
+           </ul>
+       </div>
+       <div class="stocks-new">
+       <!-- Form for adding new stock -->
+       <form action="{{ url_for('add_stock') }}" method="post">
+           <label for="symbol">Symbol:</label>
+           <input type="text" id="symbol" name="symbol" required><br>
+           <label for="company_name">Company Name:</label>
+           <input type="text" id="company_name" name="company_name" required><br>
+           <label for="price">Price:</label>
+           <input type="number" id="price" name="price" required><br>
+           <label for="volume">Volume:</label>
+           <input type="number" id="volume" name="volume" required><br>
+           <input type="submit" value="Add Stock">
+       </form>
+       </div>
+   </div>
 
-    <a href="/logout">Logout</a>
+
+   <h2 id ="available">Available Stocks</h2>
+   <select id="stockSelect" onchange="updateGraph()">
+       {% for symbol, data in stocks.items() %}
+           <option value="{{ symbol }}">{{ symbol }}</option>
+       {% endfor %}
+   </select>
+   <canvas id="stockChart" width="800" height="400"></canvas>
+   <table>
+       <thead>
+           <tr>
+               <th>Symbol</th>
+               <th>Company Name</th>
+               <th>Price</th>
+               <th>Volume</th>
+           </tr>
+       </thead>
+       <tbody>
+           {% for symbol, data in stocks.items() %}
+           <tr id="stockRow_{{ symbol }}">
+               <td>{{ symbol }}</td>
+               <td>{{ data['company_name'] }}</td>
+               <td id="price_{{ symbol }}">${{ data['price'] }}</td>
+               <td>{{ data['volume'] }}</td>
+           </tr>
+           {% endfor %}
+       </tbody>
+   </table>
+   <p><a href="{{ url_for('logout') }}">Logout</a></p>
+</div>
+<script>
+   var ctx = document.getElementById('stockChart').getContext('2d');
+   var stockChart;
+
+   function updateGraph() {
+       var selectedStock = document.getElementById('stockSelect').value;
+       var stockData = {
+           labels: [],
+           datasets: [{
+               label: 'Price',
+               data: [],
+               fill: false,
+               borderColor: 'rgba(54, 162, 235, 1)',
+               borderWidth: 2
+           }]
+       };
+
+       // Add real-time prices data for the selected stock
+       {% for symbol, data in stocks.items() %}
+       if ("{{ symbol }}" === selectedStock) {
+           stockData.labels.push("{{ data['company_name'] }}");
+           stockData.datasets[0].data.push({{ data['price'] }});
+       }
+       {% endfor %}
+
+       if (stockChart) {
+           stockChart.destroy();
+       }
+
+       stockChart = new Chart(ctx, {
+           type: 'line',
+           data: stockData,
+           options: {
+               scales: {
+                   yAxes: [{
+                       ticks: {
+                           beginAtZero: false
+                       }
+                   }]
+               }
+           }
+       });
+   }
+
+   setInterval(function() {
+       // Fetch updated prices from the server and update the table and graph
+       fetch("/prices")
+       .then(response => response.json())
+       .then(data => {
+           Object.keys(data).forEach(function(symbol) {
+               var priceElement = document.getElementById("price_" + symbol);
+               if (priceElement) {
+                   priceElement.innerText = "$" + data[symbol];
+               }
+           });
+       })
+       .catch(error => console.error('Error:', error));
+   }, 1000); // Update prices every second
+
+   updateGraph(); // Initial update
+</script>   
+ 
 </body>
 </html>

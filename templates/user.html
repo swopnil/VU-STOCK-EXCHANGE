@@ -5,18 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='highcharts/highstock.js') }}"></script>
 </head>
 <body>
     <div class="container">
         <h1>Hello, {{ username }}</h1>
+        <h2>Available Money: ${{ available_money }}</h2> <!-- Display user's money here -->
         <h2>Available Stocks</h2>
-        <select id="stockSelect" onchange="updateGraph()">
-            {% for symbol, data in stocks.items() %}
-                <option value="{{ symbol }}">{{ symbol }}</option>
-            {% endfor %}
-        </select>
-        <canvas id="stockChart" width="800" height="400"></canvas>
+        <div id="stockChart" style="height: 400px; min-width: 310px"></div>
         <table>
             <thead>
                 <tr>
@@ -29,10 +25,10 @@
             </thead>
             <tbody>
                 {% for symbol, data in stocks.items() %}
-                <tr id="stockRow_{{ symbol }}">
+                <tr>
                     <td>{{ symbol }}</td>
                     <td>{{ data['company_name'] }}</td>
-                    <td id="price_{{ symbol }}">${{ data['price'] }}</td>
+                    <td>${{ data['price'] }}</td>
                     <td>{{ data['volume'] }}</td>
                     <td>
                         <form action="{{ url_for('buy', symbol=symbol) }}" method="POST">
@@ -50,66 +46,11 @@
         </table>
         <p><a href="{{ url_for('logout') }}">Logout</a></p>
     </div>
-    <script>
-        var ctx = document.getElementById('stockChart').getContext('2d');
-        var stockChart;
-
-        function updateGraph() {
-            var selectedStock = document.getElementById('stockSelect').value;
-            var stockData = {
-                labels: [],
-                datasets: [{
-                    label: 'Price',
-                    data: [],
-                    fill: false,
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 2
-                }]
-            };
-
-            // Add real-time prices data for the selected stock
-            {% for symbol, data in stocks.items() %}
-            if ("{{ symbol }}" === selectedStock) {
-                stockData.labels.push("{{ data['company_name'] }}");
-                stockData.datasets[0].data.push({{ data['price'] }});
-            }
-            {% endfor %}
-
-            if (stockChart) {
-                stockChart.destroy();
-            }
-
-            stockChart = new Chart(ctx, {
-                type: 'line',
-                data: stockData,
-                options: {
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero: false
-                            }
-                        }]
-                    }
-                }
-            });
-        }
-
-        setInterval(function() {
-            // Fetch updated prices from the server and update the table and graph
-            fetch("/prices")
-            .then(response => response.json())
-            .then(data => {
-                Object.keys(data).forEach(function(symbol) {
-                    var priceElement = document.getElementById("price_" + symbol);
-                    if (priceElement) {
-                        priceElement.innerText = "$" + data[symbol];
-                    }
-                });
-            })
-            .catch(error => console.error('Error:', error));
-        }, 1000); // Update prices every second
-
-        updateGraph(); // Initial update
-    </script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
+        <p><a href="{{ url_for('logout') }}">Logout</a></p>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
