@@ -194,14 +194,19 @@ def login():
 
 @app.route('/user')
 def user():
-    if 'username' in session:  
+    if 'username' in session:
         username = session['username']
         available_money = fetch_available_money(username)
+        cursor = db.cursor()
+        query = "SELECT Symbol, Volume FROM new_table WHERE Username = %s"
+        cursor.execute(query, (username,))
+        user_stocks = cursor.fetchall()
+        cursor.close()
         if available_money is not None:
-            return render_template('user.html', username=username, stocks=stocks, available_money=available_money)
+            return render_template('user.html', username=username, stocks=stocks, available_money=available_money, user_stocks=user_stocks)
         else:
             flash('Error fetching available money', 'error')
-            return render_template('user.html', username=username, stocks=stocks)
+            return render_template('user.html', username=username, stocks=stocks, user_stocks=user_stocks)
     else:
         flash('Please log in as a user', 'error')
         return redirect(url_for('login'))
@@ -280,17 +285,40 @@ def update_available_money(username, amount):
         return False
 
 # Function to update the "My Stocks" table for a user
-def update_my_stocks(username, symbol, volume):
+# Function to update the user's stock portfolio in the database
+# Function to update the user's stock portfolio in the database
+# Function to update the user's stock portfolio in the database
+def update_my_stocks(username, symbol, volume_change):
     try:
         cursor = db.cursor()
-        query = "INSERT INTO new_table (Username, Symbol, Volume) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE Volume = Volume + %s"
-        cursor.execute(query, (username, symbol, volume, volume))
+        # Check if the user already owns the specified stock
+        cursor.execute("SELECT * FROM new_table WHERE Username = %s AND Symbol = %s", (username, symbol))
+        existing_record = cursor.fetchone()
+        if existing_record:
+            print("Existing Volume:", existing_record[2])  # Debugging: Print existing volume
+            print("Volume Change:", volume_change)  # Debugging: Print volume change
+            # If the user already owns the stock, update the volume
+            existing_volume = int(existing_record[3])  # Convert existing volume to integer
+            new_volume = existing_volume + volume_change
+            
+            if new_volume <= 0:
+                # If the updated volume is zero or negative, remove the record from the table
+                cursor.execute("DELETE FROM new_table WHERE Username = %s AND Symbol = %s", (username, symbol))
+            else:
+                # Otherwise, update the volume in the existing record
+                cursor.execute("UPDATE new_table SET Volume = %s WHERE Username = %s AND Symbol = %s", (new_volume, username, symbol))
+        elif volume_change > 0:
+            # If the user doesn't own the stock and is buying (volume_change > 0), insert a new record
+            cursor.execute("INSERT INTO new_table (Username, Symbol, Volume) VALUES (%s, %s, %s)", (username, symbol, int(volume_change)))
         db.commit()
         cursor.close()
         return True
     except Exception as e:
         print("Error updating My Stocks:", e)
         return False
+
+
+
 @app.route('/buy/<symbol>', methods=['POST'])
 def buy(symbol):
     if 'username' in session:
@@ -310,6 +338,9 @@ def buy(symbol):
                         stocks[symbol]['volume'] -= volume
                         # Update the price in the stocks dictionary
                         stocks[symbol]['price'] = round(new_price, 2)
+                        # Ensure volume_change is an integer before calling update_my_stocks
+                        volume_change = int(volume)
+                        update_my_stocks(username, symbol, volume_change)  # Pass volume_change as an integer
                         flash(f'You bought {volume} shares of {symbol} successfully', 'success')
                         flash(f'The price increased by {buy_ratio * 100}% due to buying', 'info')
                         return redirect(url_for('user'))
@@ -324,6 +355,7 @@ def buy(symbol):
     else:
         flash('Please log in', 'error')
     return redirect(url_for('login'))
+
 
 # Function to handle selling stocks
 @app.route('/sell/<symbol>', methods=['POST'])
@@ -350,8 +382,13 @@ def sell(symbol):
                     stocks[symbol]['volume'] += volume
                     # Update the price in the stocks dictionary
                     stocks[symbol]['price'] = round(new_price, 2)
+                    
+                    # Update the user's stock portfolio in the database
+                    update_my_stocks(username, symbol, -volume)
+                    
                     flash(f'You sold {volume} shares of {symbol} successfully', 'success')
                     flash(f'The price decreased by {sell_ratio * 100}% due to selling', 'info')
+                    
                     return redirect(url_for('user'))
                 else:
                     flash('Error updating available money', 'error')
@@ -363,16 +400,6 @@ def sell(symbol):
         flash('Please log in', 'error')
     return redirect(url_for('login'))
 
-
-
-@app.route('/prices/<symbol>')
-def get_prices(symbol):
-    if symbol in stocks:
-        real_time_price = get_real_time_price(symbol)
-        if real_time_price:
-            timestamp = int(datetime.now().timestamp() * 1000)  # Convert to milliseconds
-            return jsonify({'time': [timestamp], 'price': [real_time_price], 'stocks': stocks})  # Include time, price, and stocks data in the response
-    return jsonify({'time': [], 'price': [], 'stocks': stocks})  # Include empty arrays for time, price, and stocks data in the response if stock symbol not found
 
 
 @app.route('/add_stock', methods=['POST'])
@@ -390,32 +417,41 @@ def add_stock():
     else:
         flash('Unauthorized access', 'error')
     return redirect(url_for('admin'))
+from flask import request
 
-def get_real_time_price(symbol):
-    # Connect to the database
-    db = mysql.connector.connect(
-    host="stock100-swopnil100-1453.h.aivencloud.com",
-    port=11907,
-    user="avnadmin",
-    passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
-    database="Stock",
-    )
-    # Create a cursor
-    cursor = db.cursor(dictionary=True)
-    
-    # Query the database for the latest price of the given symbol
-    query = "SELECT Price FROM NTT WHERE Name = %s ORDER BY Time DESC LIMIT 1"
-    cursor.execute(query, (symbol,))
-    result = cursor.fetchone()
-    
-    # Close the cursor and database connection
-    cursor.close()
-    db.close()
-    
-    # Return the latest price if available, otherwise return None
-    if result:
-        return result['Price']
-    else:
+@app.route('/prices/<symbol>')
+def get_prices(symbol):
+    if symbol in stocks:
+        limit = request.args.get('limit', default=10, type=int)  # Get the 'limit' query parameter (default to 10)
+        real_time_prices = get_real_time_prices(symbol, limit)
+        if real_time_prices:
+            timestamps = [data['Time'] for data in real_time_prices]
+            prices = [data['Price'] for data in real_time_prices]
+            return jsonify({'time': timestamps, 'price': prices, 'stocks': stocks})
+    return jsonify({'time': [], 'price': [], 'stocks': stocks})
+
+def get_real_time_prices(symbol, limit):
+    try:
+        db = mysql.connector.connect(
+            host="stock100-swopnil100-1453.h.aivencloud.com",
+            port=11907,
+            user="avnadmin",
+            passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
+            database="Stock",
+        )
+        cursor = db.cursor(dictionary=True)
+
+        # Query the database for the latest 'limit' prices of the given symbol
+        query = "SELECT Time, Price FROM NTT WHERE Name = %s ORDER BY Time DESC LIMIT %s"
+        cursor.execute(query, (symbol, limit))
+        results = cursor.fetchall()
+
+        cursor.close()
+        db.close()
+
+        return results
+    except Exception as e:
+        print("Error fetching real-time prices:", e)
         return None
 
 if __name__ == '__main__':
