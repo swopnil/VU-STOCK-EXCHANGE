@@ -451,6 +451,43 @@ def add_stock():
             flash(f'Stock {symbol} added successfully', 'success')
         else:
             flash('Stock already exists', 'error')
+        try:
+            # Connect to the database
+            db = mysql.connector.connect(
+                host="stock100-swopnil100-1453.h.aivencloud.com",
+                port=11907,
+                user="avnadmin",
+                passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
+                database="Stock",
+            )
+            # Create a cursor
+            cursor = db.cursor()
+            # Create the table if it doesn't exist
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS stocks_list (
+                    ID INT AUTO_INCREMENT PRIMARY KEY,
+                    Symbol VARCHAR(10),
+                    CompanyName VARCHAR(255),
+                    Price FLOAT,
+                    Volume INT
+                )
+            """)
+            # Insert the new stock data into the table
+            cursor.execute("INSERT INTO stocks_list (Symbol, CompanyName, Price, Volume) VALUES (%s, %s, %s, %s)", (symbol, company_name, price, volume))
+    
+            # Commit the transaction
+            db.commit()
+
+            # Close the cursor and database connection
+            cursor.close()
+            db.close()
+
+            flash(f'Stock {symbol} added successfully', 'success')
+
+        except Exception as e:
+            print("Error adding stock:", e)
+            flash('Error adding stock', 'error')
+        
     else:
         flash('Unauthorized access', 'error')
     return redirect(url_for('admin'))
