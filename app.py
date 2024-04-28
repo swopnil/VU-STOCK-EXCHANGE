@@ -167,7 +167,6 @@ update_thread.start()
 @app.route('/')
 def index():
     return render_template('index.html')
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -191,7 +190,6 @@ def login():
         else:
             flash('Invalid username or password', 'error')
     return render_template('login.html')
-
 @app.route('/user')
 def user():
     if 'username' in session:
@@ -210,6 +208,7 @@ def user():
     else:
         flash('Please log in as a user', 'error')
         return redirect(url_for('login'))
+
 
 def fetch_available_money(username):
     try:
@@ -317,10 +316,9 @@ def update_my_stocks(username, symbol, volume_change):
         print("Error updating My Stocks:", e)
         return False
 
-
-
 @app.route('/buy/<symbol>', methods=['POST'])
 def buy(symbol):
+    error_message = None  # Initialize error message
     if 'username' in session:
         username = session['username']
         if symbol in stocks:
@@ -345,19 +343,27 @@ def buy(symbol):
                         flash(f'The price increased by {buy_ratio * 100}% due to buying', 'info')
                         return redirect(url_for('user'))
                     else:
-                        flash('Error updating available money', 'error')
+                        error_message = 'Error updating available money'
                 else:
-                    flash('Insufficient funds', 'error')
+                    error_message = 'Insufficient funds'
             else:
-                flash('Not enough stocks available', 'error')
+                error_message = 'Not enough stocks available'
         else:
-            flash('Stock not found', 'error')
+            error_message = 'Stock not found'
     else:
-        flash('Please log in', 'error')
-    return redirect(url_for('login'))
+        error_message = 'Please log in'
+    
+    # Render the user.html template with error message
+    username = session.get('username')  # Retrieve username if logged in
+    available_money = fetch_available_money(username)
+    cursor = db.cursor()
+    query = "SELECT Symbol, Volume FROM new_table WHERE Username = %s"
+    cursor.execute(query, (username,))
+    user_stocks = cursor.fetchall()
+    cursor.close()
+    return render_template('user.html', username=username, stocks=stocks, available_money=available_money, user_stocks=user_stocks, error_message=error_message)
 
 
-# Function to handle selling stocks
 @app.route('/sell/<symbol>', methods=['POST'])
 def sell(symbol):
     if 'username' in session:
@@ -388,7 +394,6 @@ def sell(symbol):
                     
                     flash(f'You sold {volume} shares of {symbol} successfully', 'success')
                     flash(f'The price decreased by {sell_ratio * 100}% due to selling', 'info')
-                    
                     return redirect(url_for('user'))
                 else:
                     flash('Error updating available money', 'error')
@@ -398,8 +403,16 @@ def sell(symbol):
             flash('Stock not found', 'error')
     else:
         flash('Please log in', 'error')
-    return redirect(url_for('login'))
-
+    
+    # Render the user.html template with error messages
+    username = session.get('username')  # Retrieve username if logged in
+    available_money = fetch_available_money(username)
+    cursor = db.cursor()
+    query = "SELECT Symbol, Volume FROM new_table WHERE Username = %s"
+    cursor.execute(query, (username,))
+    user_stocks = cursor.fetchall()
+    cursor.close()
+    return render_template('user.html', username=username, stocks=stocks, available_money=available_money, user_stocks=user_stocks)
 
 
 @app.route('/add_stock', methods=['POST'])
