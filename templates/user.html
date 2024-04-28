@@ -10,69 +10,77 @@
 <body>
     <div class="container">
         <h1>Hello, {{ username }}</h1>
-        <h2>Available Money: ${{ available_money }}</h2> <!-- Display user's money here -->
-        <h2>Available Stocks</h2>
-        <div>
-            <label for="stockSelect">Select Stock:</label>
-            <select id="stockSelect" onchange="fetchAndRenderStockData()">
-                <option value="">-- Select Stock --</option>
-                {% for symbol, data in stocks.items() %}
-                    <option value="{{ symbol }}">{{ symbol }} - {{ data['company_name'] }}</option>
-                {% endfor %}
-            </select>
+        <div class="balance">
+            <h2>Available Money: ${{ available_money }}</h2>
+           
         </div>
-        <div id="stockChart" style="height: 400px; min-width: 310px"></div>
+        <div class="stocks-section">
+            <h2>Available Stocks</h2>
+            <div class="stock-select">
+                <label for="stockSelect">Select Stock:</label>
+                <select id="stockSelect" onchange="fetchAndRenderStockData()">
+                    <option value="">-- Select Stock --</option>
+                    {% for symbol, data in stocks.items() %}
+                        <option value="{{ symbol }}">{{ symbol }} - {{ data['company_name'] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div id="stockChart" class="stock-chart"></div>
+            <table class="stock-table">
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Company Name</th>
+                        <th>Price</th>
+                        <th>Volume</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for symbol, data in stocks.items() %}
+                    <tr>
+                        <td>{{ symbol }}</td>
+                        <td>{{ data['company_name'] }}</td>
+                        <td>${{ data['price'] }}</td>
+                        <td>{{ data['volume'] }}</td>
+                        <td>
+                            <form action="{{ url_for('buy', symbol=symbol) }}" method="POST">
+                                <input type="number" name="volume" min="1" max="{{ data['volume'] }}" required>
+                                <button type="submit">Buy</button>
+                            </form>
+                            <form action="{{ url_for('sell', symbol=symbol) }}" method="POST">
+                                <input type="number" name="volume" min="1" required>
+                                <button type="submit">Sell</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="logout-link">
+            <p><a href="{{ url_for('logout') }}">Logout</a></p>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <div class="my-stocks">
+        <h2>My Stocks</h2>
         <table>
             <thead>
                 <tr>
                     <th>Symbol</th>
-                    <th>Company Name</th>
-                    <th>Price</th>
                     <th>Volume</th>
-                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
-                {% for symbol, data in stocks.items() %}
+                {% for stock in user_stocks %}
                 <tr>
-                    <td>{{ symbol }}</td>
-                    <td>{{ data['company_name'] }}</td>
-                    <td>${{ data['price'] }}</td>
-                    <td>{{ data['volume'] }}</td>
-                    <td>
-                        <form action="{{ url_for('buy', symbol=symbol) }}" method="POST">
-                            <input type="number" name="volume" min="1" max="{{ data['volume'] }}" required>
-                            <button type="submit">Buy</button>
-                        </form>
-                        <form action="{{ url_for('sell', symbol=symbol) }}" method="POST">
-                            <input type="number" name="volume" min="1" required>
-                            <button type="submit">Sell</button>
-                        </form>
-                    </td>
+                    <td>{{ stock[0] }}</td>
+                    <td>{{ stock[1] }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-        <p><a href="{{ url_for('logout') }}">Logout</a></p>
     </div>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
-    <h2>My Stocks</h2>
-<table>
-    <thead>
-        <tr>
-            <th>Symbol</th>
-            <th>Volume</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for stock in user_stocks %}
-        <tr>
-            <td>{{ stock[0] }}</td>
-            <td>{{ stock[1] }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
 </body>
 </html>
- 

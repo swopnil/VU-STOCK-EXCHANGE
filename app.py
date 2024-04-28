@@ -315,10 +315,9 @@ def update_my_stocks(username, symbol, volume_change):
     except Exception as e:
         print("Error updating My Stocks:", e)
         return False
-
 @app.route('/buy/<symbol>', methods=['POST'])
 def buy(symbol):
-    error_message = None  # Initialize error message
+    error_message = None
     if 'username' in session:
         username = session['username']
         if symbol in stocks:
@@ -327,18 +326,13 @@ def buy(symbol):
                 total_cost = volume * stocks[symbol]['price']
                 available_money = fetch_available_money(username)
                 if available_money is not None and available_money >= total_cost:
-                    # Deduct the cost of purchased stocks from available money
                     if update_available_money(username, -total_cost):
-                        # Increase the price by 10% when buying
                         buy_ratio = 0.1
                         new_price = stocks[symbol]['price'] * (1 + buy_ratio)
-                        # Decrease the volume of available stocks
                         stocks[symbol]['volume'] -= volume
-                        # Update the price in the stocks dictionary
                         stocks[symbol]['price'] = round(new_price, 2)
-                        # Ensure volume_change is an integer before calling update_my_stocks
                         volume_change = int(volume)
-                        update_my_stocks(username, symbol, volume_change)  # Pass volume_change as an integer
+                        update_my_stocks(username, symbol, volume_change)
                         flash(f'You bought {volume} shares of {symbol} successfully', 'success')
                         flash(f'The price increased by {buy_ratio * 100}% due to buying', 'info')
                         return redirect(url_for('user'))
@@ -353,8 +347,7 @@ def buy(symbol):
     else:
         error_message = 'Please log in'
     
-    # Render the user.html template with error message
-    username = session.get('username')  # Retrieve username if logged in
+    username = session.get('username')
     available_money = fetch_available_money(username)
     cursor = db.cursor()
     query = "SELECT Symbol, Volume FROM new_table WHERE Username = %s"
@@ -370,28 +363,19 @@ def sell(symbol):
         username = session['username']
         if symbol in stocks:
             volume = int(request.form['volume'])
-            # Check if the user owns the specified volume of the stock
             cursor = db.cursor()
             query = "SELECT Volume FROM new_table WHERE Username = %s AND Symbol = %s"
             cursor.execute(query, (username, symbol))
             result = cursor.fetchone()
             cursor.close()
             if result and result[0] >= volume:
-                # Calculate the sale amount
                 sale_amount = volume * stocks[symbol]['price']
-                # Update available money
                 if update_available_money(username, sale_amount):
-                    # Decrease the price by 10% when selling
                     sell_ratio = 0.1
                     new_price = stocks[symbol]['price'] * (1 - sell_ratio)
-                    # Increase the volume of available stocks
                     stocks[symbol]['volume'] += volume
-                    # Update the price in the stocks dictionary
                     stocks[symbol]['price'] = round(new_price, 2)
-                    
-                    # Update the user's stock portfolio in the database
                     update_my_stocks(username, symbol, -volume)
-                    
                     flash(f'You sold {volume} shares of {symbol} successfully', 'success')
                     flash(f'The price decreased by {sell_ratio * 100}% due to selling', 'info')
                     return redirect(url_for('user'))
@@ -404,8 +388,7 @@ def sell(symbol):
     else:
         flash('Please log in', 'error')
     
-    # Render the user.html template with error messages
-    username = session.get('username')  # Retrieve username if logged in
+    username = session.get('username')
     available_money = fetch_available_money(username)
     cursor = db.cursor()
     query = "SELECT Symbol, Volume FROM new_table WHERE Username = %s"
@@ -413,7 +396,6 @@ def sell(symbol):
     user_stocks = cursor.fetchall()
     cursor.close()
     return render_template('user.html', username=username, stocks=stocks, available_money=available_money, user_stocks=user_stocks)
-
 
 @app.route('/add_stock', methods=['POST'])
 def add_stock():
@@ -434,6 +416,7 @@ from flask import request
 
 @app.route('/prices/<symbol>')
 def get_prices(symbol):
+    print(symbol)
     if symbol in stocks:
         limit = request.args.get('limit', default=10, type=int)  # Get the 'limit' query parameter (default to 10)
         real_time_prices = get_real_time_prices(symbol, limit)
