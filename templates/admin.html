@@ -66,6 +66,43 @@
            {% endfor %}
        </tbody>
    </table>
+
+   <div class="user-data">
+    <h2>User Data</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Money</th>
+                <th>Stocks Bought</th>
+                <th>Quantities</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in user_data %}
+            <tr>
+                <td>{{ user.Username }}</td>
+                <td>{{ user.Money }}</td>
+                <td>
+                    {% for symbol, volume in user.Stocks|dictsort %}
+                        {% if volume and volume != 0 %}
+                            {{ symbol }}{% if not loop.last %}, {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for symbol, volume in user.Stocks|dictsort %}
+                        {% if volume and volume != 0 %}
+                            {{ volume }}{% if not loop.last %}, {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+
    <p><a href="{{ url_for('logout') }}">Logout</a></p>
 </div>
 <script src="{{ url_for('static', filename='script.js') }}"></script>
