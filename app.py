@@ -52,13 +52,18 @@ def add_user_to_database(username, password):
     cursor = db.cursor()
     cursor.execute("INSERT INTO ver (Username, Password) VALUES (%s, %s)", (username, password))
     db.commit()
-    cursor.execute("INSERT INTO ID (Username, Money) VALUES (%s, %s)", (username, 100))
+    cursor.execute("INSERT INTO ID (Username, Money) VALUES (%s, %s)", (username, 10000))
     db.commit()
     
     cursor.close()
 
 # Configure MySQL connection
 db = mysql.connector.connect(
+host="stock100-swopnil100-1453.h.aivencloud.com",
+port=11907,
+user="avnadmin",
+passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
+database="Stock",
     host="stock100-swopnil100-1453.h.aivencloud.com",
     port=11907,
     user="avnadmin",
@@ -66,7 +71,6 @@ db = mysql.connector.connect(
     database="Stock",
     
 )
-
 
 # Your other Flask routes and functions go here...
 
@@ -87,12 +91,10 @@ stocks = {
 }
 # Configure MySQL connection
 db = mysql.connector.connect(
-    host="stock100-swopnil100-1453.h.aivencloud.com",
-    port=11907,
-    user="avnadmin",
-    passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
-    database="Stock",
-   
+    host="localhost",
+    user="root",
+    passwd="Hello@hello1",
+    database="Stock"
 )
 
 
@@ -110,14 +112,12 @@ def get_money():
         username = session['username']
         # Connect to the database and fetch the user's money
         db = mysql.connector.connect(
-    host="stock100-swopnil100-1453.h.aivencloud.com",
-    port=11907,
-    user="avnadmin",
-    passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
-    database="Stock",
-   
-)
-
+        host="stock100-swopnil100-1453.h.aivencloud.com",
+        port=11907,
+        user="avnadmin",
+        passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
+        database="Stock",
+        )
         cursor = db.cursor()
         query = "SELECT money FROM ID WHERE username = %s"
         cursor.execute(query, (username,))
@@ -134,12 +134,13 @@ def update_stock_data(stocks):
         for symbol, data in stocks.items():
             # Connect to the database
             db = mysql.connector.connect(
-                host="localhost",
-                user="root",
-                passwd="Hello@hello1",
-                database="Stock"
+            host="stock100-swopnil100-1453.h.aivencloud.com",
+            port=11907,
+            user="avnadmin",
+            passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
+            database="Stock",
             )
-            
+        
             # Create a cursor
             cursor = db.cursor()
             
@@ -212,14 +213,12 @@ def user():
 def fetch_available_money(username):
     try:
         db = mysql.connector.connect(
-    host="stock100-swopnil100-1453.h.aivencloud.com",
-    port=11907,
-    user="avnadmin",
-    passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
-    database="Stock",
-  
-)
-
+        host="stock100-swopnil100-1453.h.aivencloud.com",
+        port=11907,
+        user="avnadmin",
+        passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
+        database="Stock",
+        )
         cursor = db.cursor()
         query = "SELECT Money FROM ID WHERE Username = %s"
         cursor.execute(query, (username,))
@@ -404,10 +403,7 @@ def get_real_time_price(symbol):
     user="avnadmin",
     passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
     database="Stock",
- 
-)
-
-    
+    )
     # Create a cursor
     cursor = db.cursor(dictionary=True)
     

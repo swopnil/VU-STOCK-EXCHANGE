@@ -8,9 +8,7 @@
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
    <title>Admin Page</title>
-
-   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-   
+   <script src="{{ url_for('static', filename='highcharts/highstock.js') }}"></script>
 </head>
 <body>
    <h1 id="welcome">Admin Page</h1>
@@ -47,7 +45,7 @@
            <option value="{{ symbol }}">{{ symbol }}</option>
        {% endfor %}
    </select>
-   <canvas id="stockChart" width="800" height="400"></canvas>
+   <div id="stockChart" style="height: 400px; min-width: 310px"></div>
    <table>
        <thead>
            <tr>
@@ -70,67 +68,6 @@
    </table>
    <p><a href="{{ url_for('logout') }}">Logout</a></p>
 </div>
-<script>
-   var ctx = document.getElementById('stockChart').getContext('2d');
-   var stockChart;
-
-   function updateGraph() {
-       var selectedStock = document.getElementById('stockSelect').value;
-       var stockData = {
-           labels: [],
-           datasets: [{
-               label: 'Price',
-               data: [],
-               fill: false,
-               borderColor: 'rgba(54, 162, 235, 1)',
-               borderWidth: 2
-           }]
-       };
-
-       // Add real-time prices data for the selected stock
-       {% for symbol, data in stocks.items() %}
-       if ("{{ symbol }}" === selectedStock) {
-           stockData.labels.push("{{ data['company_name'] }}");
-           stockData.datasets[0].data.push({{ data['price'] }});
-       }
-       {% endfor %}
-
-       if (stockChart) {
-           stockChart.destroy();
-       }
-
-       stockChart = new Chart(ctx, {
-           type: 'line',
-           data: stockData,
-           options: {
-               scales: {
-                   yAxes: [{
-                       ticks: {
-                           beginAtZero: false
-                       }
-                   }]
-               }
-           }
-       });
-   }
-
-   setInterval(function() {
-       // Fetch updated prices from the server and update the table and graph
-       fetch("/prices")
-       .then(response => response.json())
-       .then(data => {
-           Object.keys(data).forEach(function(symbol) {
-               var priceElement = document.getElementById("price_" + symbol);
-               if (priceElement) {
-                   priceElement.innerText = "$" + data[symbol];
-               }
-           });
-       })
-       .catch(error => console.error('Error:', error));
-   }, 1000); // Update prices every second
-
-   updateGraph(); // Initial update
-</script>   
- 
+<script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
