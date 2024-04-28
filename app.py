@@ -59,11 +59,6 @@ def add_user_to_database(username, password):
 
 # Configure MySQL connection
 db = mysql.connector.connect(
-host="stock100-swopnil100-1453.h.aivencloud.com",
-port=11907,
-user="avnadmin",
-passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
-database="Stock",
     host="stock100-swopnil100-1453.h.aivencloud.com",
     port=11907,
     user="avnadmin",
@@ -91,11 +86,12 @@ stocks = {
 }
 # Configure MySQL connection
 db = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    passwd="Hello@hello1",
-    database="Stock"
-)
+        host="stock100-swopnil100-1453.h.aivencloud.com",
+        port=11907,
+        user="avnadmin",
+        passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
+        database="Stock",
+        )
 
 
 # Sample user data (for demonstration)

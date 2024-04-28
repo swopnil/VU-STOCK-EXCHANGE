@@ -12,6 +12,15 @@
         <h1>Hello, {{ username }}</h1>
         <h2>Available Money: ${{ available_money }}</h2> <!-- Display user's money here -->
         <h2>Available Stocks</h2>
+        <div>
+            <label for="stockSelect">Select Stock:</label>
+            <select id="stockSelect" onchange="fetchAndRenderStockData()">
+                <option value="">-- Select Stock --</option>
+                {% for symbol, data in stocks.items() %}
+                    <option value="{{ symbol }}">{{ symbol }} - {{ data['company_name'] }}</option>
+                {% endfor %}
+            </select>
+        </div>
         <div id="stockChart" style="height: 400px; min-width: 310px"></div>
         <table>
             <thead>
@@ -44,11 +53,6 @@
                 {% endfor %}
             </tbody>
         </table>
-        <p><a href="{{ url_for('logout') }}">Logout</a></p>
-    </div>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
-</body>
-</html>
         <p><a href="{{ url_for('logout') }}">Logout</a></p>
     </div>
     <script src="{{ url_for('static', filename='script.js') }}"></script>

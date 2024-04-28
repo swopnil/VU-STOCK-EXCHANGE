@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
     updateGraph(defaultSymbol);
 
     // Event listener for dropdown change
-    document.getElementById('stockDropdown').addEventListener('change', function() {
+    document.getElementById('stockSelect').addEventListener('change', function() {
         var selectedSymbol = this.value;
         updateGraph(selectedSymbol);
     });
