@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var priceArray = data.price;
 
         // Use the defaultSymbol to set the title of the chart
-        var companyName = data.stocks[defaultSymbol].company_name;
+        var companyName = data.stocks[symbol].company_name;
 
         var chartData = []; // Initialize chartData as an empty array
 

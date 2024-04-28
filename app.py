@@ -79,11 +79,30 @@ csp = {
 }
 talisman = Talisman(app, content_security_policy=csp)
 app.secret_key = 'your_secret_key'
-stocks = {
-    'AAPL': {'company_name': 'Apple Inc.', 'price': 135.00, 'volume': 1000},
-    'GOOGL': {'company_name': 'Alphabet Inc.', 'price': 2350.00, 'volume': 500},
-    'MSFT': {'company_name': 'Microsoft Corporation', 'price': 250.00, 'volume': 800},
-}
+import mysql.connector
+
+db = mysql.connector.connect(
+        host="stock100-swopnil100-1453.h.aivencloud.com",
+        port=11907,
+        user="avnadmin",
+        passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
+        database="Stock",
+        )
+
+cursor = db.cursor()
+
+cursor.execute("SELECT * FROM stocks_list")
+results = cursor.fetchall()
+
+stocks = {}
+
+for row in results:
+    stocks[row[1]] = {
+        'company_name': row[2],
+        'price': row[3],
+        'volume': row[4]
+    }
+
 # Configure MySQL connection
 db = mysql.connector.connect(
         host="stock100-swopnil100-1453.h.aivencloud.com",
@@ -235,48 +254,13 @@ def fetch_available_money(username):
         return None
 
 @app.route('/admin')
-@app.route('/admin')
 def admin():
     if 'username' in session and session['username'] == "admin": 
-        user_data = fetch_user_data()
-        return render_template('admin.html', username=session['username'], stocks=stocks, user_data=user_data)
+        return render_template('admin.html', username=session['username'], stocks=stocks)
     else:
         flash('Please log in as an admin', 'error')
         return redirect(url_for('login'))
-def fetch_user_data():
-    try:
-        cursor = db.cursor(dictionary=True)
-        # Query to fetch user data, their current money, and merged stocks
-        query = """
-        SELECT ID.Username, ID.Money, new_table.Symbol, SUM(new_table.Volume) AS TotalVolume
-        FROM ID 
-        LEFT JOIN new_table ON ID.Username = new_table.Username 
-        GROUP BY ID.Username, ID.Money, new_table.Symbol
-        """
-        cursor.execute(query)
-        rows = cursor.fetchall()
 
-        # Create a dictionary to store user data with merged stocks
-        user_data = {}
-
-        # Process the data and merge stocks for each user
-        for row in rows:
-            username = row['Username']
-            money = row['Money']
-            symbol = row['Symbol']
-            volume = row['TotalVolume']
-            if username not in user_data:
-                user_data[username] = {'Username': username, 'Money': money, 'Stocks': {}}
-            if symbol not in user_data[username]['Stocks']:
-                user_data[username]['Stocks'][symbol] = volume
-            else:
-                user_data[username]['Stocks'][symbol] += volume
-
-        cursor.close()
-        return user_data.values()
-    except Exception as e:
-        print("Error fetching user data:", e)
-        return None
 
 @app.route('/logout')
 def logout():
@@ -304,7 +288,7 @@ def fetch_available_money(username):
     except Exception as e:
         print("Error fetching available money:", e)
         return None
-
+print(stocks)
 # Function to update available money for a user
 def update_available_money(username, amount):
     try:
@@ -329,8 +313,7 @@ def update_my_stocks(username, symbol, volume_change):
         cursor.execute("SELECT * FROM new_table WHERE Username = %s AND Symbol = %s", (username, symbol))
         existing_record = cursor.fetchone()
         if existing_record:
-            print("Existing Volume:", existing_record[2])  # Debugging: Print existing volume
-            print("Volume Change:", volume_change)  # Debugging: Print volume change
+             # Debugging: Print volume change
             # If the user already owns the stock, update the volume
             existing_volume = int(existing_record[3])  # Convert existing volume to integer
             new_volume = existing_volume + volume_change
@@ -350,6 +333,7 @@ def update_my_stocks(username, symbol, volume_change):
     except Exception as e:
         print("Error updating My Stocks:", e)
         return False
+
 @app.route('/buy/<symbol>', methods=['POST'])
 def buy(symbol):
     error_message = None
@@ -361,11 +345,16 @@ def buy(symbol):
                 total_cost = volume * stocks[symbol]['price']
                 available_money = fetch_available_money(username)
                 if available_money is not None and available_money >= total_cost:
+                    # Deduct the cost of purchased stocks from available money
                     if update_available_money(username, -total_cost):
+                        # Increase the price by 10% when buying
                         buy_ratio = 0.1
                         new_price = stocks[symbol]['price'] * (1 + buy_ratio)
+                        # Decrease the volume of available stocks
                         stocks[symbol]['volume'] -= volume
+                        # Update the price in the stocks dictionary
                         stocks[symbol]['price'] = round(new_price, 2)
+                        # Ensure volume_change is an integer before calling update_my_stocks
                         volume_change = int(volume)
                         update_my_stocks(username, symbol, volume_change)
                         flash(f'You bought {volume} shares of {symbol} successfully', 'success')
@@ -398,19 +387,28 @@ def sell(symbol):
         username = session['username']
         if symbol in stocks:
             volume = int(request.form['volume'])
+            # Check if the user owns the specified volume of the stock
             cursor = db.cursor()
             query = "SELECT Volume FROM new_table WHERE Username = %s AND Symbol = %s"
             cursor.execute(query, (username, symbol))
             result = cursor.fetchone()
             cursor.close()
             if result and result[0] >= volume:
+                # Calculate the sale amount
                 sale_amount = volume * stocks[symbol]['price']
+                # Update available money
                 if update_available_money(username, sale_amount):
+                    # Decrease the price by 10% when selling
                     sell_ratio = 0.1
                     new_price = stocks[symbol]['price'] * (1 - sell_ratio)
+                    # Increase the volume of available stocks
                     stocks[symbol]['volume'] += volume
+                    # Update the price in the stocks dictionary
                     stocks[symbol]['price'] = round(new_price, 2)
+                    
+                    # Update the user's stock portfolio in the database
                     update_my_stocks(username, symbol, -volume)
+                    
                     flash(f'You sold {volume} shares of {symbol} successfully', 'success')
                     flash(f'The price decreased by {sell_ratio * 100}% due to selling', 'info')
                     return redirect(url_for('user'))
@@ -432,6 +430,7 @@ def sell(symbol):
     cursor.close()
     return render_template('user.html', username=username, stocks=stocks, available_money=available_money, user_stocks=user_stocks)
 
+
 @app.route('/add_stock', methods=['POST'])
 def add_stock():
     if 'username' in session and session['username'] == "admin":
@@ -451,10 +450,11 @@ from flask import request
 
 @app.route('/prices/<symbol>')
 def get_prices(symbol):
-    print(symbol)
+    
     if symbol in stocks:
         limit = request.args.get('limit', default=10, type=int)  # Get the 'limit' query parameter (default to 10)
         real_time_prices = get_real_time_prices(symbol, limit)
+       
         if real_time_prices:
             timestamps = [data['Time'] for data in real_time_prices]
             prices = [data['Price'] for data in real_time_prices]
