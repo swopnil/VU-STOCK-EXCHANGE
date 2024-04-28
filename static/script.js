@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (timeoutId) {
                     clearTimeout(timeoutId); // Clear the existing timeout
                 }
-                timeoutId = setTimeout(() => updateGraph(selectedSymbol), 50000); // Set a new timeout
+                timeoutId = setTimeout(() => updateGraph(selectedSymbol), 5000); // Set a new timeout
             })
             .catch(error => console.error('Error fetching data:', error));
     }
