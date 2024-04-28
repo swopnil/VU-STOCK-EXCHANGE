@@ -255,12 +255,46 @@ def fetch_available_money(username):
 
 @app.route('/admin')
 def admin():
-    if 'username' in session and session['username'] == "admin": 
-        return render_template('admin.html', username=session['username'], stocks=stocks)
-    else:
-        flash('Please log in as an admin', 'error')
-        return redirect(url_for('login'))
+   if 'username' in session and session['username'] == "admin": 
+       user_data = fetch_user_data()
+       return render_template('admin.html', username=session['username'], stocks=stocks, user_data=user_data)
+   else:
+       flash('Please log in as an admin', 'error')
+       return redirect(url_for('login'))
+def fetch_user_data():
+   try:
+       cursor = db.cursor(dictionary=True)
+       # Query to fetch user data, their current money, and merged stocks
+       query = """
+       SELECT ID.Username, ID.Money, new_table.Symbol, SUM(new_table.Volume) AS TotalVolume
+       FROM ID 
+       LEFT JOIN new_table ON ID.Username = new_table.Username 
+       GROUP BY ID.Username, ID.Money, new_table.Symbol
+       """
+       cursor.execute(query)
+       rows = cursor.fetchall()
 
+       # Create a dictionary to store user data with merged stocks
+       user_data = {}
+
+       # Process the data and merge stocks for each user
+       for row in rows:
+           username = row['Username']
+           money = row['Money']
+           symbol = row['Symbol']
+           volume = row['TotalVolume']
+           if username not in user_data:
+               user_data[username] = {'Username': username, 'Money': money, 'Stocks': {}}
+           if symbol not in user_data[username]['Stocks']:
+               user_data[username]['Stocks'][symbol] = volume
+           else:
+               user_data[username]['Stocks'][symbol] += volume
+
+       cursor.close()
+       return user_data.values()
+   except Exception as e:
+       print("Error fetching user data:", e)
+       return None
 
 @app.route('/logout')
 def logout():
