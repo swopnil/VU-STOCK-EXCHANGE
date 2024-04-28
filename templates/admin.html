@@ -17,10 +17,15 @@
        <div class="stocks-registered">
            <p>Here are the registered stocks:</p>
            <ul>
-               {% for symbol, data in stocks.items() %}
-                   <li>{{ symbol }}: {{ data['company_name'] }} - ${{ data['price'] }} (Volume: {{ data['volume'] }})</li>
-               {% endfor %}
-           </ul>
+            {% for symbol, data in stocks.items() %}
+            <li>{{ symbol }}: {{ data['company_name'] }} - ${{ data['price'] }} (Volume: {{ data['volume'] }})
+                <form action="{{ url_for('delete_stock', symbol=symbol) }}" method="post" style="display: inline;">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <button type="submit" class="button-danger">Delete</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
        </div>
        <div class="stocks-new">
        <!-- Form for adding new stock -->

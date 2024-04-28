@@ -528,6 +528,25 @@ def add_stock():
     return redirect(url_for('admin'))
 from flask import request
 
+@app.route('/delete_stock/<symbol>', methods=['POST', 'DELETE'])
+def delete_stock(symbol):
+    if 'username' in session and session['username'] == "admin":
+        # Check if the stock exists
+        if symbol in stocks:
+            # Remove the stock from the stocks dictionary
+            del stocks[symbol]
+            # Update the database to remove the stock
+            cursor = db.cursor()
+            cursor.execute("DELETE FROM stocks_list WHERE Symbol = %s", (symbol,))
+            db.commit()
+            cursor.close()
+            flash(f'Stock {symbol} deleted successfully', 'success')
+        else:
+            flash('Stock not found', 'error')
+    else:
+        flash('Unauthorized access', 'error')
+    return redirect(url_for('admin'))
+
 @app.route('/prices/<symbol>')
 def get_prices(symbol):
     
