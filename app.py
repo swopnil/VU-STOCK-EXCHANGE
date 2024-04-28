@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from datetime import datetime, timedelta
 import mysql.connector
@@ -220,10 +221,10 @@ def user():
         user_stocks = cursor.fetchall()
         cursor.close()
         if available_money is not None:
-            return render_template('user.html', username=username, stocks=stocks, available_money=available_money, user_stocks=user_stocks)
+            return render_template('user.html', username=username, stocks=OrderedDict(sorted(stocks.items())), available_money=available_money, user_stocks=user_stocks)
         else:
             flash('Error fetching available money', 'error')
-            return render_template('user.html', username=username, stocks=stocks, user_stocks=user_stocks)
+            return render_template('user.html', username=username, stocks=OrderedDict(sorted(stocks.items())), user_stocks=user_stocks)
     else:
         flash('Please log in as a user', 'error')
         return redirect(url_for('login'))
@@ -257,7 +258,7 @@ def fetch_available_money(username):
 def admin():
    if 'username' in session and session['username'] == "admin": 
        user_data = fetch_user_data()
-       return render_template('admin.html', username=session['username'], stocks=stocks, user_data=user_data)
+       return render_template('admin.html', username=session['username'], stocks=OrderedDict(sorted(stocks.items())), user_data=user_data)
    else:
        flash('Please log in as an admin', 'error')
        return redirect(url_for('login'))
@@ -416,7 +417,7 @@ def buy(symbol):
     cursor.execute(query, (username,))
     user_stocks = cursor.fetchall()
     cursor.close()
-    return render_template('user.html', username=username, stocks=stocks, available_money=available_money, user_stocks=user_stocks, error_message=error_message)
+    return render_template('user.html', username=username, stocks=OrderedDict(sorted(stocks.items())), available_money=available_money, user_stocks=user_stocks, error_message=error_message)
 
 
 @app.route('/sell/<symbol>', methods=['POST'])
@@ -470,7 +471,7 @@ def sell(symbol):
     cursor.execute(query, (username,))
     user_stocks = cursor.fetchall()
     cursor.close()
-    return render_template('user.html', username=username, stocks=stocks, available_money=available_money, user_stocks=user_stocks)
+    return render_template('user.html', username=username, stocks=OrderedDict(sorted(stocks.items())), available_money=available_money, user_stocks=user_stocks)
 
 
 @app.route('/add_stock', methods=['POST'])
