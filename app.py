@@ -358,8 +358,8 @@ def buy(symbol):
                         volume_change = int(volume)
                         update_my_stocks(username, symbol, volume_change)
                         cursor = db.cursor()
-                        query = "UPDATE stocks_list SET Price = %s WHERE Symbol = %s"
-                        cursor.execute(query, (new_price, symbol))
+                        query = "UPDATE stocks_list SET Price = %s, Volume = Volume - %s WHERE Symbol = %s"
+                        cursor.execute(query, (new_price, volume, symbol))
                         db.commit()
                         flash(f'You bought {volume} shares of {symbol} successfully', 'success')
                         flash(f'The price increased by {buy_ratio * 100}% due to buying', 'info')
@@ -413,8 +413,8 @@ def sell(symbol):
                     # Update the user's stock portfolio in the database
                     update_my_stocks(username, symbol, -volume)
                     cursor = db.cursor()
-                    query = "UPDATE stocks_list SET Price = %s WHERE Symbol = %s"
-                    cursor.execute(query, (new_price, symbol))
+                    query = "UPDATE stocks_list SET Price = %s, Volume = Volume - %s WHERE Symbol = %s"
+                    cursor.execute(query, (new_price, volume, symbol))
                     db.commit()
                     
                     flash(f'You sold {volume} shares of {symbol} successfully', 'success')
