@@ -18,6 +18,7 @@ import json
 import hashlib
 from flask import current_app
 
+
 def inject_get_and_remove_flash_messages(app):
     @app.context_processor
     def utility_processor():
@@ -35,7 +36,10 @@ def inject_get_and_remove_flash_messages(app):
 from flask import get_flashed_messages, session
 app = Flask(__name__)
 inject_get_and_remove_flash_messages(app)
-
+@app.after_request
+def add_security_headers(response):
+    response.headers['Content-Security-Policy'] = "img-src 'self' * data:;"
+    return response
 def get_and_remove_flash_messages():
     messages = []
     for message in get_flashed_messages(with_categories=True):
