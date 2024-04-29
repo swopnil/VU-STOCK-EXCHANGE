@@ -3,13 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Villanova Stock Exchange</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background-color: #f8f9fa; /* Light gray background */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .header {
+            background-color: #343a40; /* Dark gray header background */
+            color: #ffffff; /* White text color */
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        .content {
+            background-color: #ffffff; /* White background for content */
+            border-radius: 10px; /* Rounded corners */
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* Box shadow for depth */
+            padding: 30px;
+            margin-top: 20px;
+            animation-name: fadeIn;
+            animation-duration: 1s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .btn-primary {
+            background-color: #ffffff; /* White button */
+            color: #007bff; /* Blue text color */
+            border-color: #007bff; /* Blue border color */
+            transition: all 0.3s ease-in-out; /* Smooth transition */
+        }
+
+        .btn-primary:hover {
+            background-color: #007bff; /* Blue on hover */
+            color: #ffffff; /* White text on hover */
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Welcome to Stock Trading Platform</h1>
-        <p><a href="{{ url_for('login') }}">Login</a></p>
+        <!-- Header -->
+        <header class="header">
+            <h1 class="display-4">Villanova Stock Exchange</h1>
+        </header>
+        
+        <!-- Main Content -->
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="content">
+                    <h2 class="text-center mb-4">Welcome to the <span id="trading-platform"></span></h2>
+                    <p class="text-center mb-4">Experience the thrill of trading stocks with Villanova Stock Exchange.</p>
+                    <button onclick="location.href='{{ url_for('login') }}'" class="btn btn-primary btn-lg btn-block">Login</button>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <!-- Bootstrap JS (Optional) -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Custom JavaScript -->
+    <script>
+        // Animate the text in the header
+        const tradingPlatformText = document.getElementById('trading-platform');
+        const text = "Stock Trading Platform";
+        let index = 0;
+
+        function animateText() {
+            if (index < text.length) {
+                tradingPlatformText.textContent += text[index];
+                index++;
+                setTimeout(animateText, 100); // Adjust the speed of animation here (in milliseconds)
+            }
+        }
+
+        animateText();
+    </script>
 </body>
 </html>

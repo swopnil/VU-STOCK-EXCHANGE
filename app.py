@@ -6,7 +6,7 @@ import threading
 import time
 import json
 from talisman import Talisman
-
+import requests
 
 from stock import App
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
@@ -193,8 +193,19 @@ def add_money():
 
     # Render the add_money.html template with flash messages
     return render_template('add_money.html')
-
-
+@app.route('/news')
+def get_news():
+    api_key = 'RYI17A1019LCNEOC'
+    url = 'https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=AAPL&apikey=RYI17A1019LCNEOC'
+    response = requests.get(url)
+    if response.status_code == 200:
+        news_data = response.json()
+        print(news_data)
+        return render_template('news.html', news_data=news_data)
+    else:
+        return 'Error fetching news data'
+     
+ 
 # Add a new route to handle user registration
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -248,7 +259,12 @@ csp = {
     'default-src': ["'self'", 'https://code.highcharts.com'],
     'script-src': ["'self'", "'unsafe-inline'", 'https://code.highcharts.com'],
 
-    'style-src': ["'self'", "'unsafe-inline'", 'https://code.highcharts.com']
+    'style-src': ["'self'", "'unsafe-inline'", 'https://code.highcharts.com'],
+    'img-src': ["'self'", 'https://i.ibb.co/'],
+   
+    
+
+
 }
 talisman = Talisman(app, content_security_policy=csp)
 app.secret_key = 'your_secret_key'
