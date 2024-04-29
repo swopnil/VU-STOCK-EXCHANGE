@@ -66,7 +66,8 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (seconds < 86400) {
                 timeAgo = Math.round(seconds / 3600) + ' hours ago';
             } else {
-                timeAgo = Math.round(seconds / 86400) + ' days ago';
+                // timeAgo = Math.round(seconds / 86400) + ' days ago';
+                timeAgo = formattedTime;
             }
     
             chartData.push([timestamp, parseFloat(priceArray[i])]);
