@@ -12,16 +12,16 @@
         /* Navigation Bar Styles */
         .navbar {
             overflow: hidden;
-            background-color: #2c3e50; /* Set background color to black */
+            background-color: #3498db; /* Change navbar color */
             display: flex;
-            justify-content: space-between; /* Align items to the ends */
+            justify-content: space-between;
             align-items: center;
             padding: 10px;
         }
 
         .navbar-right {
             display: flex;
-            justify-content: flex-end; /* Align items to the right */
+            justify-content: flex-end;
             align-items: center;
         }
 
@@ -31,26 +31,26 @@
         }
 
         .navbar a {
-            color: #ecf0f1; /* Set text color to white */
+            color: #ffffff;
             text-align: center;
             padding: 14px 20px;
             text-decoration: none;
         }
 
         .navbar a:hover {
-            background-color: #34495e; /* Darken background color on hover */
+            background-color: #2980b9; /* Darken navbar color on hover */
             color: white;
         }
 
         .active {
-            background-color: #3498db; /* Set active background color */
+            background-color: #035b96; /* Set active background color */
             color: white;
         }
 
         .logo {
-            margin-left: 20px; /* Adjust margin */
-            max-height: 40px; /* Adjust max height */
-            max-width: 150px; /* Adjust max width */
+            margin-left: 20px;
+            max-height: 40px;
+            max-width: 150px;
         }
     </style>
 </head>
@@ -63,21 +63,19 @@
         <div class="navbar-right">
             <a class="active" href="{{ url_for('home') }}">Home</a>
             <a href="{{ url_for('mystocks') }}">MyStocks</a>
-
             <a href="{{ url_for('add_money') }}">Add Money</a>
-
-            <a href="#">Notification</a>
+            <a href="{{ url_for('get_d') }}">Notification</a>
             <a href="{{ url_for('get_news') }}">News</a> 
         </div>
     </div>
     <div class="container">
-        <h1>Hello, {{ username }}</h1>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1>Welcome, {{ username }}</h1>
+            <div style="background-color: white; color: black; padding: 10px; border-radius: 5px;">Available Money: ${{ available_money }}</div>
+                </div>
         {% for message in get_and_remove_flash_messages() %}
             <div class="flash-message {{ message.category }}">{{ message.message }}</div>
         {% endfor %}
-        <h2>Available Money: ${{ available_money }}</h2> <!-- Display user's money here -->
-       
-        
         
         <h2>Available Stocks</h2>
         <div>
@@ -108,14 +106,16 @@
                     <td>${{ data['price'] }}</td>
                     <td>{{ data['volume'] }}</td>
                     <td>
-                        <form action="{{ url_for('buy', symbol=symbol) }}" method="POST">
-                            <input type="number" name="volume" min="1" max="{{ data['volume'] }}" required>
-                            <button type="submit">Buy</button>
-                        </form>
-                        <form action="{{ url_for('sell', symbol=symbol) }}" method="POST">
-                            <input type="number" name="volume" min="1" required>
-                            <button type="submit">Sell</button>
-                        </form>
+                        <div style="display: flex; justify-content: center;">
+                            <form action="{{ url_for('buy', symbol=symbol) }}" method="POST" style="margin-right: 10px;">
+                                <input type="number" name="volume" min="1" max="{{ data['volume'] }}" required>
+                                <button type="submit" style="background-color: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 5px;">Buy</button>
+                            </form>
+                            <form action="{{ url_for('sell', symbol=symbol) }}" method="POST">
+                                <input type="number" name="volume" min="1" required>
+                                <button type="submit" style="background-color: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 5px;">Sell</button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}
@@ -123,7 +123,7 @@
         </table>
         <p><a href="{{ url_for('logout') }}">Logout</a></p>
     </div>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
     
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

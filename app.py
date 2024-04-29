@@ -5,10 +5,9 @@ import mysql.connector
 import threading
 import time
 import json
-from talisman import Talisman
+
 import requests
 
-from stock import App
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from datetime import datetime, timedelta
 import mysql.connector
@@ -69,7 +68,7 @@ def money():
 def get_user(card_holder_name):
     try:
         db = mysql.connector.connect(
-            host="stock100-swopnil100-1453.h.aivencloud.com",
+            # host="stock100-swopnil100-1453.h.aivencloud.com",
             port=11907,
             user="avnadmin",
             passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
@@ -270,7 +269,7 @@ csp = {
 
 
 }
-talisman = Talisman(app, content_security_policy=csp)
+
 app.secret_key = 'your_secret_key'
 import mysql.connector
 
@@ -633,7 +632,7 @@ def sell(symbol):
                     sell_ratio = 0.1
                     new_price = stocks[symbol]['price'] * (1 - sell_ratio)
                     # Decrease the volume of available stocks
-                    stocks[symbol]['volume'] -= volume
+                    stocks[symbol]['volume'] += volume
                     # Update the price in the stocks dictionary
                     stocks[symbol]['price'] = round(new_price, 2)
                     
@@ -752,8 +751,10 @@ def delete_stock(symbol):
         flash('Unauthorized access', 'error')
     return redirect(url_for('admin'))
 
+
 @app.route('/prices/<symbol>')
 def get_prices(symbol):
+
     
     if symbol in stocks:
         limit = request.args.get('limit', default=10, type=int)  # Get the 'limit' query parameter (default to 10)
@@ -788,6 +789,38 @@ def get_real_time_prices(symbol, limit):
     except Exception as e:
         print("Error fetching real-time prices:", e)
         return None
+    
+def fetch_available_stocks():
+    try:
+        db = mysql.connector.connect(
+            host="stock100-swopnil100-1453.h.aivencloud.com",
+            port=11907,
+            user="avnadmin",
+            passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
+            database="Stock",
+        )
+        cursor = db.cursor(dictionary=True)
+
+        # Query the database to fetch available stocks
+        query = "SELECT Symbol, CompanyName, Price FROM stocks_list"
+        cursor.execute(query)
+        results = cursor.fetchall()
+
+        cursor.close()
+        db.close()
+
+        return results
+    except Exception as e:
+        print("Error fetching available stocks:", e)
+        return None
+
+@app.route('/get_d')
+def get_d():
+    # Fetch required data from the database or other sources
+    # For example, let's assume you want to fetch the available stocks and their prices
+    available_stocks = fetch_available_stocks()  # Implement this function to fetch available stocks from your database
+    # Pass the fetched data to the dash.html template
+    return render_template('dash.html', available_stocks=available_stocks, stocks=OrderedDict(sorted(stocks.items())))
 
 if __name__ == '__main__':
     app.run(debug=True)
