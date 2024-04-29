@@ -21,6 +21,8 @@
             </div>
             <div id="payment_fields">
                 <div id="card_fields" style="display: none;">
+                    <label for="card_holder_name">Card Holder Name:</label>
+                    <input type="text" id="card_holder_name" name="card_holder_name" required>
                     <label for="card_number">Card Number:</label>
                     <input type="text" id="card_number" name="card_number" required>
                     <label for="expiry_date">Expiry Date:</label>
@@ -28,7 +30,9 @@
                     <label for="cvv">CVV:</label>
                     <input type="text" id="cvv" name="cvv" maxlength="3" required>
                 </div>
-                <div id="bank_fields">
+                <div id="bank_fields" style="display: none;">
+                    <label for="account_holder_name">Account Holder Name:</label>
+                    <input type="text" id="account_holder_name" name="account_holder_name" required>
                     <label for="bank_name">Bank Name:</label>
                     <input type="text" id="bank_name" name="bank_name" required>
                     <label for="account_number">Account Number:</label>
@@ -41,6 +45,8 @@
             </div>
             <button type="submit">Add Money</button>
         </form>
+        <a href="{{ url_for('user') }}">Back to User</a>
+
     </div>
 
     <script>
@@ -48,33 +54,40 @@
             const paymentMethodSelect = document.getElementById('payment_method');
             const cardFields = document.getElementById('card_fields');
             const bankFields = document.getElementById('bank_fields');
+            const cardHolderNameInput = document.getElementById('card_holder_name');
             const cardNumberInput = document.getElementById('card_number');
             const expiryDateInput = document.getElementById('expiry_date');
             const cvvInput = document.getElementById('cvv');
             const bankNameInput = document.getElementById('bank_name');
+            const accountHolderNameInput = document.getElementById('account_holder_name');
             const accountNumberInput = document.getElementById('account_number');
             const routingNumberInput = document.getElementById('routing_number');
 
             // Initially hide the card fields
             cardFields.style.display = 'none';
+            bankFields.style.display = 'none';
 
             paymentMethodSelect.addEventListener('change', () => {
                 if (paymentMethodSelect.value === 'credit_card') {
                     cardFields.style.display = 'block';
                     bankFields.style.display = 'none';
+                    cardHolderNameInput.required = true;
                     cardNumberInput.required = true;
                     expiryDateInput.required = true;
                     cvvInput.required = true;
                     bankNameInput.required = false;
+                    accountHolderNameInput.required = false;
                     accountNumberInput.required = false;
                     routingNumberInput.required = false;
                 } else {
                     cardFields.style.display = 'none';
                     bankFields.style.display = 'block';
+                    cardHolderNameInput.required = false;
                     cardNumberInput.required = false;
                     expiryDateInput.required = false;
                     cvvInput.required = false;
                     bankNameInput.required = true;
+                    accountHolderNameInput.required = true;
                     accountNumberInput.required = true;
                     routingNumberInput.required = true;
                 }

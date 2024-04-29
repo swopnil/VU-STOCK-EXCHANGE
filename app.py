@@ -57,7 +57,7 @@ from flask import request, redirect, url_for, render_template
 import mysql.connector
 @app.route('/money')
 def money():
-    return render_template('money.html')
+    return render_template('add_money.html')
 
 def get_user(card_holder_name):
     try:
@@ -148,6 +148,7 @@ def add_money():
             if payment_method == 'credit_card':
                 card_number = request.form['card_number']
                 expiry_date = request.form['expiry_date']
+                card_holder_name=request.form['card_holder_name']
                 cvv = request.form['cvv']
 
                 cursor = db.cursor()
@@ -156,7 +157,9 @@ def add_money():
                 result = cursor.fetchone()
                 cursor.close()
                 if result:
-                    if decrease_balance(username, amount):
+                    if decrease_balance(card_holder_name, amount):
+                        update_available_money(username, amount)
+
                         flash(f'Payment of ${amount} successful', 'success')
                     else:
                         flash('Error updating balance', 'error')
@@ -164,6 +167,9 @@ def add_money():
                 bank_name = request.form['bank_name']
                 account_number = request.form['account_number']
                 routing_number = request.form['routing_number']
+                card_holder_name=request.form['account_holder_name']
+
+                
 
                 cursor = db.cursor()
                 query = "SELECT * FROM bankdata WHERE bank_name = %s AND account_number = %s AND routing_number = %s"
@@ -172,7 +178,9 @@ def add_money():
                 cursor.close()
 
                 if result:
-                    if decrease_balance(username, amount):
+                    if decrease_balance(card_holder_name, amount):
+                        update_available_money(username, amount)
+
                         flash(f'Payment of ${amount} successful', 'success')
                     else:
                         flash('Error updating balance', 'error')
