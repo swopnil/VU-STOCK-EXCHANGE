@@ -7,6 +7,10 @@ body {
     margin: 0 auto;
     padding: 20px;
 }
+.range-selector-button-active {
+    background-color: #007bff; /* Change to the desired active button color */
+    color: #ffffff; /* Change to the desired text color */
+}
 
 h1, h2 {
     margin-bottom: 10px;

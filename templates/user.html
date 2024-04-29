@@ -126,22 +126,6 @@
         <p><a href="{{ url_for('logout') }}">Logout</a></p>
     </div>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
-    <h2>My Stocks</h2>
-<table>
-    <thead>
-        <tr>
-            <th>Symbol</th>
-            <th>Volume</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for stock in user_stocks %}
-        <tr>
-            <td>{{ stock[0] }}</td>
-            <td>{{ stock[1] }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    
 </body>
 </html>
