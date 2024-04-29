@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Stocks</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='st.css') }}">
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 
-    <title>Market News & Sentiment Trending</title>
-    <link rel="stylesheet" href="/static/news.css">
-    <meta http-equiv="Content-Security-Policy" content="img-src *;">
-   
     <style>
         /* Navigation Bar Styles */
         .navbar {
@@ -85,22 +84,23 @@
         </div>
     </nav>
     <div class="container">
-        <h1>Market News & Sentiment Trending</h1>
-        <h2>News Data</h2>
-        <div>
-            <!-- Display news data here -->
-            {% for story in stories %}
-            <div class="news-item">
-                <h3 class="title">{{ story['title'] }}</h3>
-                <p>{{ story['description'] }}</p>
-                <p><a href="{{ story['url'] }}" target="_blank">Read more</a></p>
-                <!-- If available, display the favicon image -->
-                {% if 'favicon_url' in story %}
-                <img src="{{ story['favicon_url'] }}" alt="Favicon">
-                {% endif %}
-            </div>
-            {% endfor %}
-        </div>
+        <h2 class="mt-5">My Stocks</h2>
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Volume</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stock in user_stocks %}
+                <tr>
+                    <td>{{ stock[0] }}</td>
+                    <td>{{ stock[1] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </body>
 </html>

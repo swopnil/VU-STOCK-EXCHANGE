@@ -61,8 +61,11 @@
             <img src="https://i.ibb.co/m680bPM/v.png" alt="Logo" class="logo">
         </div>
         <div class="navbar-right">
-            <a class="active" href="#">Home</a>
+            <a class="active" href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('mystocks') }}">MyStocks</a>
+
             <a href="{{ url_for('add_money') }}">Add Money</a>
+
             <a href="#">Notification</a>
             <a href="{{ url_for('get_news') }}">News</a> 
         </div>

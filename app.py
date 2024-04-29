@@ -58,6 +58,9 @@ from flask import session
 from flask import request, redirect, url_for, render_template
 import mysql.connector
 from flask import request, redirect, url_for, render_template
+@app.route('/home')
+def home():
+    return render_template('user.html')
 import mysql.connector
 @app.route('/money')
 def money():
@@ -512,7 +515,7 @@ def fetch_available_money(username):
     except Exception as e:
         print("Error fetching available money:", e)
         return None
-print(stocks)
+
 # Function to update available money for a user
 def update_available_money(username, amount):
     try:
@@ -661,6 +664,19 @@ def sell(symbol):
     user_stocks = cursor.fetchall()
     cursor.close()
     return render_template('user.html', username=username, stocks=OrderedDict(sorted(stocks.items())), available_money=available_money, user_stocks=user_stocks)
+
+@app.route('/mystocks')
+def mystocks():
+    # Update the user_stocks list herek
+    if 'username' in session:
+        username = session['username']
+        available_money = fetch_available_money(username)
+        cursor = db.cursor()
+        query = "SELECT Symbol, Volume FROM new_table WHERE Username = %s"
+        cursor.execute(query, (username,))
+        user_stocks = cursor.fetchall()
+        cursor.close()
+    return render_template('my_stocks.html', user_stocks=user_stocks)
 
 
 @app.route('/add_stock', methods=['POST'])
