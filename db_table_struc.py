@@ -89,10 +89,64 @@ def print_new_table_data():
         print(", ".join(str(col) for col in row))
 
     cursor.close()
-    
 
+def print_bank_data():
+    try:
 
+        # Create a cursor object to execute SQL queries
+        cursor = db.cursor()
+
+        # Execute a SELECT query to fetch data from the bankdata table
+        cursor.execute("SELECT * FROM bankdata")
+
+        # Fetch all rows of the result set
+        bank_data = cursor.fetchall()
+
+        # Print the fetched data
+        for row in bank_data:
+            print("ID:", row[0])
+            print("Card Number:", row[1])
+            print("Expiry Date:", row[2])
+            print("CVV:", row[3])
+            print("Card Holder Name:", row[4])
+            print("Balance:", row[5])
+            print("Bank Name:", row[6])
+            print("Account Number:", row[7])
+            print("Routing Number:", row[8])
+            print()  # Add an empty line for readability
+
+    except mysql.connector.Error as err:
+        print("Error:", err)
+    cursor.close()
+
+def print_NTT():
+    try:
+        # Create a cursor object to execute SQL queries
+        cursor = db.cursor()
+
+        # Execute a SELECT query to fetch data from the NTT table, ordered by timestamp
+        cursor.execute("SELECT * FROM NTT ORDER BY Time")
+
+        # Fetch all rows of the result set
+        ID_data = cursor.fetchall()
+
+        # Print the fetched data
+        for row in ID_data:
+            if row[1] == "AMD":
+                print("ID:", row[0])
+                print("Name:", row[1])
+                print("Price:", row[2])
+                print("Volume:", row[3])
+                print("Time:", row[4])
+                print()  # Add an empty line for readability
+
+    except mysql.connector.Error as err:
+        print("Error:", err)
+    finally:
+        cursor.close()
 
 if __name__ == "__main__":
-    print_new_table_structure()
+    # print_new_table_structure()
     print_table_structure()
+    print_bank_data()
+    print_NTT()

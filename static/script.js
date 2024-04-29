@@ -3,10 +3,10 @@ document.addEventListener('DOMContentLoaded', function() {
     var defaultSymbol = 'AAPL'; // Default stock symbol
     let selectedSymbol = defaultSymbol; // Store the currently selected symbol
     let previousSymbol = defaultSymbol; // Store the previously selected symbol
-    let selectedRange = 0; // Store the currently selected range
     let timeoutId = null; // Store the timeout ID
+    // let selectedRange = 0;
 
-    function updateGraph(symbol) {
+    function updateGraph(symbol,selectedRange) {
         if (symbol !== previousSymbol) {
             // Destroy the existing chart
             if (stockChart) {
@@ -15,9 +15,18 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             previousSymbol = symbol; // Update the previously selected symbol
         }
-
-        fetch(`/prices/${symbol}?limit=10`) // Fetch only the last 10 data points for the selected symbol
-            .then(response => response.json())
+        var limit = 1000;
+        if (selectedRange === 1) { // 1 day
+            limit = 24; // Fetch the last 24 data points for 1 day
+        } else if (selectedRange === 2) { // 1 week
+            limit = 168; // Fetch the last 168 data points for 1 week
+        } else if (selectedRange === 3) { // 1 month
+            limit = 720; // Fetch the last 720 data points for 1 month
+        } else if (selectedRange === 4) { // 1 year
+            limit = 1000; // Fetch the last 1000 data points for 1 year
+        }
+        fetch(`/prices/${symbol}?limit=${limit}`)
+        .then(response => response.json())
             .then(data => {
                 console.log("Fetched data:", data);
 
@@ -28,29 +37,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (timeoutId) {
                     clearTimeout(timeoutId); // Clear the existing timeout
                 }
-                timeoutId = setTimeout(() => updateGraph(selectedSymbol), 5000); // Set a new timeout
+                timeoutId = setTimeout(() => updateGraph(selectedSymbol, selectedRange), 5000); // Set a new timeout
             })
             .catch(error => console.error('Error fetching data:', error));
     }
 
-    function createChart(data, symbol, range) {
+    function createChart(data, symbol, selectedRange) {
         // Extract time and price arrays from the data object
         var timeArray = data.time;
         var priceArray = data.price;
-
+    
         // Use the defaultSymbol to set the title of the chart
         var companyName = data.stocks[symbol].company_name;
-
+    
         var chartData = []; // Initialize chartData as an empty array
-
+    
         // Loop through time and price arrays to create chart data for new data points
         for (var i = 0; i < timeArray.length; i++) {
             var timestamp = timeArray[i];
             var formattedTime = Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', timestamp * 1000); // Convert to milliseconds
             var timeAgo = '';
-
+    
             var seconds = Math.round((new Date() - timestamp * 1000) / 1000);
-            console.log("Fetched sec:", seconds);
             if (seconds < 60) {
                 timeAgo = seconds + ' seconds ago';
             } else if (seconds < 3600) {
@@ -60,43 +68,38 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 timeAgo = Math.round(seconds / 86400) + ' days ago';
             }
-
+    
             chartData.push([timestamp, parseFloat(priceArray[i])]);
         }
         console.log("Fetched time:", timeAgo);
-
+    
         // Sort the chart data by timestamp in ascending order
         chartData.sort((a, b) => a[0] - b[0]);
         chartData.reverse()
-
+    
         var rangeSelector = {
-            selected: 1,
             buttons: [{
                 type: 'day',
                 count: 1,
-                text: '1d'
+                text: '1d',
             }, {
                 type: 'week',
                 count: 1,
-                text: '1w'
+                text: '1w',
             }, {
                 type: 'month',
                 count: 1,
-                text: '1m'
+                text: '1m',
             }, {
                 type: 'year',
                 count: 1,
-                text: '1y'
+                text: '1y',
             }, {
                 type: 'all',
-                text: 'All'
+                text: 'All',
             }]
         };
-
-        if (range) {
-            rangeSelector.selected = range; // Set the selected range
-        }
-
+    
         // If the stockChart instance doesn't exist, create a new one
         if (!stockChart) {
             stockChart = Highcharts.stockChart('stockChart', {
@@ -119,14 +122,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }]
             });
+    
+            // Add click event to range selector buttons
+            stockChart.rangeSelector.buttons.forEach(function(button, index) {
+                button.element.addEventListener('click', function() {
+                    var selectedRange = index + 1; // Range starts from 1 for 1d, 2 for 1w, and so on
+                    updateGraph(symbol,selectedRange);
+                });
+            });
         } else {
             // If the stockChart instance already exists, update the series data
+
             stockChart.series[0].setData(chartData);
         }
     }
-
-    // Initial fetch and chart creation for the default symbol
-    updateGraph(defaultSymbol);
+    
 
     // Event listener for dropdown change
     document.getElementById('stockSelect').addEventListener('change', function() {
@@ -139,7 +149,6 @@ document.addEventListener('DOMContentLoaded', function() {
         form.addEventListener('submit', function(event) {
             event.preventDefault();
         });
-
     });
     
 });
