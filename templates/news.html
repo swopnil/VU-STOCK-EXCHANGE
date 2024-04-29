@@ -5,60 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Market News & Sentiment Trending</title>
     <link rel="stylesheet" href="/static/news.css">
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .news-item {
-            margin-bottom: 20px;
-            padding: 20px;
-            border-bottom: 1px solid #ccc;
-        }
-        .news-item:last-child {
-            border-bottom: none;
-        }
-        .news-item .title {
-            font-weight: bold;
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
-        .news-item .summary {
-            font-size: 16px;
-            color: #666;
-        }
-    </style>
+    <meta http-equiv="Content-Security-Policy" content="none">
 </head>
 <body>
     <div class="container">
         <h1>Market News & Sentiment Trending</h1>
-        <p>Looking for market news data to train your LLM models or to augment your trading strategy? You have just found it. This API returns live and historical market news & sentiment data from a large & growing selection of premier news outlets around the world, covering stocks, cryptocurrencies, forex, and a wide range of topics such as fiscal policy, mergers & acquisitions, IPOs, etc. This API, combined with our core stock API, fundamental data, and technical indicator APIs, can provide you with a 360-degree view of the financial market and the broader economy.</p>
-        
-        <h2>API Parameters</h2>
-        <ul>
-            <li><strong>Required:</strong> function</li>
-            <!-- Add other API parameters here -->
-        </ul>
-
         <h2>News Data</h2>
         <div>
             <!-- Display news data here -->
-            {% for news_item in news_data %}
+            {% for story in stories %}
             <div class="news-item">
-                <h3 class="title">{{ news_item.title }}</h3>
-                <p class="summary">{{ news_item.summary }}</p>
-                <p><a href="{{ news_item.url }}" target="_blank">Read more</a></p>
-                <img src="{{ news_item.banner_image }}" alt="Banner Image">
+                <h3 class="title">{{ story['title'] }}</h3>
+                <p>{{ story['description'] }}</p>
+                <p><a href="{{ story['url'] }}" target="_blank">Read more</a></p>
+                <!-- If available, display the favicon image -->
+                {% if 'favicon_url' in story %}
+                <img src="{{ story['favicon_url'] }}" alt="Favicon">
+                {% endif %}
             </div>
             {% endfor %}
         </div>

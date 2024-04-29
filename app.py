@@ -193,19 +193,16 @@ def add_money():
 
     # Render the add_money.html template with flash messages
     return render_template('add_money.html')
+
 @app.route('/news')
 def get_news():
-    api_key = 'RYI17A1019LCNEOC'
-    url = 'https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=AAPL&apikey=RYI17A1019LCNEOC'
+    url = 'https://api.tickertick.com/feed?q=z:aapl&n=200'
     response = requests.get(url)
     if response.status_code == 200:
-        news_data = response.json()
-        print(news_data)
-        return render_template('news.html', news_data=news_data)
+        news_data = response.json().get('stories', [])  # Extracting 'stories' field
+        return render_template('news.html', stories=news_data)
     else:
         return 'Error fetching news data'
-     
- 
 # Add a new route to handle user registration
 @app.route('/register', methods=['GET', 'POST'])
 def register():
