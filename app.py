@@ -63,7 +63,10 @@ def home():
 import mysql.connector
 @app.route('/money')
 def money():
-    return render_template('add_money.html')
+    username = session.get('username')
+    available_money=fetch_available_money(username)
+
+    return render_template('add_money.html',available_money=available_money)
 
 def get_user(card_holder_name):
     try:
@@ -141,10 +144,14 @@ db = mysql.connector.connect(
     )
 @app.route('/add_money', methods=['GET', 'POST'])
 def add_money():
+    username = session.get('username')
+    available_money=fetch_available_money(username)
     if request.method == 'POST':
         payment_method = request.form['payment_method']
         amount = float(request.form['amount'])
         username = session.get('username')
+       
+
 
         if username is None:
             flash('User not logged in', 'error')
@@ -198,7 +205,7 @@ def add_money():
             # Log the error for debugging purposes
 
     # Render the add_money.html template with flash messages
-    return render_template('add_money.html')
+    return render_template('add_money.html',available_money=available_money)
 
 @app.route('/news')
 def get_news():
@@ -619,7 +626,7 @@ def buy(symbol):
     cursor.execute(query, (username,))
     user_stocks = cursor.fetchall()
     cursor.close()
-    return render_template('user.html', username=username, stocks=OrderedDict(sorted(stocks.items())), available_money=available_money, user_stocks=user_stocks, error_message=error_message)
+    return render_template('buy.html', username=username, stocks=OrderedDict(sorted(stocks.items())), available_money=available_money, user_stocks=user_stocks, error_message=error_message)
 
 
 @app.route('/sell/<symbol>', methods=['POST'])
@@ -682,7 +689,7 @@ def sell(symbol):
     cursor.execute(query, (username,))
     user_stocks = cursor.fetchall()
     
-    return render_template('user.html', username=username, stocks=OrderedDict(sorted(stocks.items())), available_money=available_money, user_stocks=user_stocks)
+    return render_template('buy.html', username=username, stocks=OrderedDict(sorted(stocks.items())), available_money=available_money, user_stocks=user_stocks)
 
 @app.route('/mystocks')
 def mystocks():
@@ -867,6 +874,32 @@ def get_d():
     available_money=fetch_available_money(username)
     # Pass the fetched data to the dash.html template
     return render_template('dash.html', available_stocks=available_stocks, stocks=OrderedDict(sorted(stocks.items())),available_money=available_money,transfers=transfers)
+@app.route('/trade')
+
+def trade():
+    db = mysql.connector.connect(
+            host="stock100-swopnil100-1453.h.aivencloud.com",
+            port=11907,
+            user="avnadmin",
+            passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
+            database="Stock",
+        )
+    cursor = db.cursor(dictionary=True)
+    # Fetch required data from the database or other sources
+    # For example, let's assume you want to fetch the available stocks and their prices
+    available_stocks = fetch_available_stocks() 
+
+    username = session.get('username')
+    query_transactions = "SELECT timestamp, transaction_type, symbol, company_name, amount, number FROM transaction WHERE username = %s ORDER BY timestamp DESC LIMIT 5"
+    cursor.execute(query_transactions, (username,))
+    transfers = cursor.fetchall()
+    
+    cursor.close()
+    
+     # Implement this function to fetch available stocks from your database
+    available_money=fetch_available_money(username)
+    return render_template('buy.html', available_stocks=available_stocks, stocks=OrderedDict(sorted(stocks.items())),available_money=available_money,transfers=transfers)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

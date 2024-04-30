@@ -4,125 +4,183 @@
     <meta charset="UTF-8">
     <title>Add Money</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='add.css') }}">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
-
-    <style>
-        /* Navigation Bar Styles */
-        .navbar {
-            overflow: hidden;
-            background-color: #2c3e50; /* Set background color to black */
-            display: flex;
-            justify-content: space-between; /* Align items to the ends */
-            align-items: center;
-            padding: 10px;
-        }
-
-        .navbar-right {
-            display: flex;
-            justify-content: flex-end; /* Align items to the right */
-            align-items: center;
-        }
-
-        .navbar-left {
-            flex: 1;
-            text-align: left;
-        }
-
-        .navbar a {
-            color: #ecf0f1; /* Set text color to white */
-            text-align: center;
-            padding: 14px 20px;
-            text-decoration: none;
-        }
-
-        .navbar a:hover {
-            background-color: #34495e; /* Darken background color on hover */
-            color: white;
-        }
-
-        .active {
-            background-color: #3498db; /* Set active background color */
-            color: white;
-        }
-
-        .logo {
-            margin-left: 20px; /* Adjust margin */
-            max-height: 40px; /* Adjust max height */
-            max-width: 150px; /* Adjust max width */
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/icons@1.4.2/icons.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <a class="navbar-brand" href="#">
-            <img src="https://i.ibb.co/m680bPM/v.png" alt="Logo" class="logo">
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="{{ url_for('user') }}">Home <span class="sr-only">(current)</span></a>
-                   
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('add_money') }}">Add Money</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Notification</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('get_news') }}">News</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('mystocks') }}">MyStocks</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-    <div class="container">
-        <h1>Add Money</h1>
-        {% for message in get_and_remove_flash_messages() %}
-            <div class="flash-message {{ message.category }}">{{ message.message }}</div>
-        {% endfor %}
-        <form method="POST" action="{{ url_for('add_money') }}">
-            <div>
-                <label for="payment_method">Payment Method:</label>
-                <select id="payment_method" name="payment_method">
-                    <option value="credit_card">Credit Card</option>
-                    <option value="bank">Bank Transfer</option>
-                </select>
-            </div>
-            <div id="payment_fields">
-                <div id="card_fields" style="display: none;">
-                    <label for="card_holder_name">Card Holder Name:</label>
-                    <input type="text" id="card_holder_name" name="card_holder_name" required>
-                    <label for="card_number">Card Number:</label>
-                    <input type="text" id="card_number" name="card_number" required>
-                    <label for="expiry_date">Expiry Date:</label>
-                    <input type="text" id="expiry_date" name="expiry_date" placeholder="MM/YY" required>
-                    <label for="cvv">CVV:</label>
-                    <input type="text" id="cvv" name="cvv" maxlength="3" required>
+    <div class="app">
+        <div class="app">
+            <header class="app-header">
+                <div class="app-header-logo">
+                    <div class="logo">
+                        <span class="logo-icon">
+                            <img src="https://i.ibb.co/m680bPM/v.png" />
+                        </span>
+                        <h1 class="logo-title">
+                            <span>Villanova</span>
+                            <span>Exchange</span>
+                        </h1>
+                    </div>
                 </div>
-                <div id="bank_fields" style="display: none;">
-                    <label for="account_holder_name">Account Holder Name:</label>
-                    <input type="text" id="account_holder_name" name="account_holder_name" required>
-                    <label for="bank_name">Bank Name:</label>
-                    <input type="text" id="bank_name" name="bank_name" required>
-                    <label for="account_number">Account Number:</label>
-                    <input type="text" id="account_number" name="account_number" required>
-                    <label for="routing_number">Routing Number:</label>
-                    <input type="text" id="routing_number" name="routing_number" required>
+                <div class="app-header-navigation">
+                    <div class="tabs">
+                        <a href="#">
+                            Overview
+                        </a>
+                        <a href="#" class="active">
+                            Payments
+                        </a>
+                        <a href="#">
+                            Cards
+                        </a>
+                        <a href="#">
+                            Account
+                        </a>
+                        <a href="#">
+                            System
+                        </a>
+                        <a href="#">
+                            Business
+                        </a>
+                    </div>
                 </div>
-                <label for="amount">Amount:</label>
-                <input type="number" id="amount" name="amount" min="0" step="0.01" required>
-            </div>
-            <button type="submit">Add Money</button>
-        </form>
-        <a href="{{ url_for('user') }}">Back to User</a>
+                <div class="app-header-actions">
+                    <button class="user-profile">
+                        <span>SWOPNIL</span>
+                        <span>
+                            <img src="https://i.ibb.co/m680bPM/v.png" />
+                        </span>
+                    </button>
+                    <div class="app-header-actions-buttons">
+                        <button class="icon-button large">
+                            <i class="ph-magnifying-glass"></i>
+                        </button>
+                        <button class="icon-button large">
+                            <i class="ph-bell"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="app-header-mobile">
+                    <button class="icon-button large">
+                        <i class="ph-list"></i>
+                    </button>
+                </div>
+        
+            </header>
+            <div class="app-body">
+                <div class="app-body-navigation">
+                    <nav class="navigation">
+                        <a href="{{ url_for('get_d') }}">
+                            <i class="ph-browsers"></i>
+                            <span>Dashboard</span>
+                        </a>
+                        <a href="{{ url_for('add_money') }}">
+                            <i class="ph-check-square"></i>
+                            <span>Add Money</span>
+                        </a>
+                        <a href="{{ url_for('trade') }}">
+                            <i class="ph-swap"></i>
+                            <span>Trade</span>
+                        </a>
+                        <a href="{{ url_for('mystocks') }}">
+                            <i class="ph-file-text"></i>
+                            <span>My Stocks</span>
+                        </a>
+                        <a href="#">
+                            <i class="ph-globe"></i>
+                            <span>SWIFT</span>
+                        </a>
+                        <a href="#">
+                            <i class="ph-clipboard-text"></i>
+                            <span>Exchange</span>
+                        </a>
+                    </nav>
+                    <footer class="footer">
+                        <h1>VillaStock<small>©</small></h1>
+                        <div>
+                            Swopnil ©<br />
+                            All Rights Reserved 2024
+                        </div>
+                    </footer>
+                </div>
 
+        <div class="app-body-main-content">
+            <section class="add-money-section">
+                <div style="background-color: transparent; color: rgb(255, 255, 255); padding: 0px; border-radius: 5px; font-size: 1.5rem; display: block; font-weight: bold; unicode-bidi: isolate;margin-right: 5px">Current Balance: ${{ available_money }}</div>
+                <div class="add-money-section-header">
+                    
+
+                    <h2>Add Money</h2>
+                </div>
+
+                {% for message in get_and_remove_flash_messages() %}
+                    <div class="flash-message {{ message.category }}">{{ message.message }}</div>
+                {% endfor %}
+
+                <form method="POST" action="{{ url_for('add_money') }}">
+                    <div class="form-group">
+                        <label for="payment_method">Payment Method:</label>
+                        <select id="payment_method" name="payment_method" class="form-control">
+                            <option value="credit_card">Credit Card</option>
+                            <option value="bank">Bank Transfer</option>
+                        </select>
+                    </div>
+
+                    <div id="payment_fields">
+                        <div id="card_fields" class="card-fields" style="display: none;">
+                            <div class="form-group">
+                                <label for="card_holder_name">Card Holder Name:</label>
+                                <input type="text" id="card_holder_name" name="card_holder_name" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="card_number">Card Number:</label>
+                                <input type="text" id="card_number" name="card_number" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="expiry_date">Expiry Date:</label>
+                                <input type="text" id="expiry_date" name="expiry_date" placeholder="MM/YY" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="cvv">CVV:</label>
+                                <input type="text" id="cvv" name="cvv" maxlength="3" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div id="bank_fields" class="bank-fields" style="display: none;">
+                            <div class="form-group">
+                                <label for="account_holder_name">Account Holder Name:</label>
+                                <input type="text" id="account_holder_name" name="account_holder_name" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="bank_name">Bank Name:</label>
+                                <input type="text" id="bank_name" name="bank_name" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="account_number">Account Number:</label>
+                                <input type="text" id="account_number" name="account_number" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="routing_number">Routing Number:</label>
+                                <input type="text" id="routing_number" name="routing_number" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="amount">Amount:</label>
+                            <input type="number" id="amount" name="amount" min="0" step="0.01" class="form-control" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Add Money</button>
+                    </div>
+                </form>
+
+                <div class="add-money-section-footer">
+                    <a href="{{ url_for('user') }}">Back to User</a>
+                </div>
+            </section>
+        </div>
+
+        <!-- Include your existing footer from dash.html -->
     </div>
 
     <script>

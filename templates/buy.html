@@ -1,10 +1,8 @@
-
-
 <!DOCTYPE html>
 <html>
 <head>
     <title>Buy/Sell Stocks</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='st.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='b.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/icons@1.4.2/icons.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap">
 </head>
@@ -82,9 +80,9 @@
 					<i class="ph-swap"></i>
 					<span>Trade</span>
 				</a>
-				<a href="#">
+				<a href="{{ url_for('mystocks') }}">
 					<i class="ph-file-text"></i>
-					<span>Templates</span>
+					<span>My Stocks</span>
 				</a>
 				<a href="#">
 					<i class="ph-globe"></i>
@@ -108,6 +106,7 @@
 
         <div class="app-body-main-content">
             <section class="service-section">
+                <div style="background-color: transparent; color: rgb(255, 255, 255); padding: 0px; border-radius: 5px; font-size: 1.5rem; display: block; font-weight: bold; unicode-bidi: isolate;margin-right: 5px">Current Balance: ${{ available_money }}</div>
                 <div class="available-money">
                     <!-- Your existing available money section -->
                 </div>
@@ -121,22 +120,37 @@
 
             <section class="trade-section">
                 <div class="trade-section-header">
-                    <h2>My Stocks</h2>
+                    <h2>Buy/Sell Stocks</h2>
                 </div>
 
                 <table>
                     <thead>
                         <tr>
                             <th>Symbol</th>
-                            <th>Volume</th>
+                            <th>Company Name</th>
+                            <th>Price</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for stock in user_stocks %}
+                        {% for symbol, data in stocks.items() %}
                         <tr>
-                            <td>{{ stock[0] }}</td>
-                            <td>{{ stock[1] }}</td>
-                            
+                            <td>{{ symbol }}</td>
+                            <td>{{ data['company_name'] }}</td>
+                           
+                            <td>{{ data['price'] }}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <form action="{{ url_for('buy', symbol=symbol) }}" method="POST">
+                                        <input type="number" name="volume" min="1" max="{{ data['volume'] }}" required>
+                                        <button type="submit" class="buy-button">Buy</button>
+                                    </form>
+                                    <form action="{{ url_for('sell', symbol=symbol) }}" method="POST">
+                                        <input type="number" name="volume" min="1" required>
+                                        <button type="submit" class="sell-button">Sell</button>
+                                    </form>
+                                </div>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
