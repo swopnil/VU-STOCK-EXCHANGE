@@ -67,13 +67,14 @@ a {
 
 .app-header {
 	display: grid;
-    padding-top: -10rem; /* Adjust the top padding */
-    padding-bottom: 0.1rem; 
+    display: grid;
+    padding-top: 0rem;
+    padding-bottom: 0.1rem;
+
 	grid-template-columns: minmax(min-content, 175px) minmax(max-content, 1fr) minmax(
 			max-content,
 			400px
 		);
-        height: 100px;
 	column-gap: 4rem;
 	align-items: flex-end;
 	@media (max-width: 1200px) {
@@ -257,6 +258,8 @@ a {
 	justify-content: space-between;
 	color: var(--c-text-tertiary);
 	border-bottom: 1px solid var(--c-gray-600);
+    margin-top: 0.8rem; /* Add this line */
+
 
 	a {
 		padding-top: 1rem;

@@ -70,7 +70,7 @@
 	<div class="app-body">
 		<div class="app-body-navigation">
 			<nav class="navigation">
-				<a href="#">
+				<a href="{{ url_for('get_d') }}">
 					<i class="ph-browsers"></i>
 					<span>Dashboard</span>
 				</a>
@@ -86,9 +86,9 @@
 					<i class="ph-file-text"></i>
 					<span>My Stocks</span>
 				</a>
-				<a href="#">
+				<a href="{{ url_for('get_news') }}">
 					<i class="ph-globe"></i>
-					<span>SWIFT</span>
+					<span>News</span>
 				</a>
 				<a href="#">
 					<i class="ph-clipboard-text"></i>

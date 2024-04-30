@@ -59,7 +59,7 @@ import mysql.connector
 from flask import request, redirect, url_for, render_template
 @app.route('/home')
 def home():
-    return render_template('user.html')
+    return render_template('dash.html')
 import mysql.connector
 @app.route('/money')
 def money():
@@ -410,6 +410,23 @@ def login():
     return render_template('login.html')
 @app.route('/user')
 def user():
+    db = mysql.connector.connect(
+            host="stock100-swopnil100-1453.h.aivencloud.com",
+            port=11907,
+            user="avnadmin",
+            passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
+            database="Stock",
+        )
+    cursor = db.cursor(dictionary=True)
+    # Fetch required data from the database or other sources
+    # For example, let's assume you want to fetch the available stocks and their prices
+   
+
+    username = session.get('username')
+    transfers = "SELECT timestamp, transaction_type, symbol, company_name, amount, number FROM transaction WHERE username = %s ORDER BY timestamp DESC LIMIT 5"
+    cursor.execute(transfers, (username,))
+    transfers = cursor.fetchall()
+   
     if 'username' in session:
         username = session['username']
         available_money = fetch_available_money(username)
@@ -419,10 +436,10 @@ def user():
         user_stocks = cursor.fetchall()
         cursor.close()
         if available_money is not None:
-            return render_template('user.html', username=username, stocks=OrderedDict(sorted(stocks.items())), available_money=available_money, user_stocks=user_stocks)
+            return render_template('dash.html', username=username, stocks=OrderedDict(sorted(stocks.items())), available_money=available_money, user_stocks=user_stocks,transfers=transfers)
         else:
             flash('Error fetching available money', 'error')
-            return render_template('user.html', username=username, stocks=OrderedDict(sorted(stocks.items())), user_stocks=user_stocks)
+            return render_template('dash.html', username=username, stocks=OrderedDict(sorted(stocks.items())), user_stocks=user_stocks, transfers=transfers)
     else:
         flash('Please log in as a user', 'error')
         return redirect(url_for('login'))
@@ -693,7 +710,7 @@ def sell(symbol):
 
 @app.route('/mystocks')
 def mystocks():
-    # Update the user_stocks list herek
+    # Update the user_stocks list here
     if 'username' in session:
         username = session['username']
         available_money = fetch_available_money(username)
@@ -706,12 +723,30 @@ def mystocks():
 
 @app.route('/latest_transfers')
 def latest_transfers():
+    db = mysql.connector.connect(
+            host="stock100-swopnil100-1453.h.aivencloud.com",
+            port=11907,
+            user="avnadmin",
+            passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
+            database="Stock",
+        )
     cursor = db.cursor(dictionary=True)
-    query = "SELECT company_name, transaction_type, timestamp, amount FROM transaction ORDER BY timestamp DESC LIMIT 3"
-    cursor.execute(query)
+    # Fetch required data from the database or other sources
+    # For example, let's assume you want to fetch the available stocks and their prices
+    available_stocks = fetch_available_stocks() 
+
+    username = session.get('username')
+    transfers = "SELECT timestamp, transaction_type, symbol, company_name, amount, number FROM transaction WHERE username = %s ORDER BY timestamp DESC LIMIT 5"
+    cursor.execute(transfers, (username,))
     transfers = cursor.fetchall()
+    
     cursor.close()
-    return render_template('dash.html', transfers=transfers)
+    
+     # Implement this function to fetch available stocks from your database
+    available_money=fetch_available_money(username)
+    # Pass the fetched data to the dash.html template
+    return render_template('dash.html', available_stocks=available_stocks, stocks=OrderedDict(sorted(stocks.items())),available_money=available_money,transfers=transfers)
+
 
 @app.route('/add_stock', methods=['POST'])
 def add_stock():
@@ -864,8 +899,8 @@ def get_d():
     available_stocks = fetch_available_stocks() 
 
     username = session.get('username')
-    query_transactions = "SELECT timestamp, transaction_type, symbol, company_name, amount, number FROM transaction WHERE username = %s ORDER BY timestamp DESC LIMIT 5"
-    cursor.execute(query_transactions, (username,))
+    transfers = "SELECT timestamp, transaction_type, symbol, company_name, amount, number FROM transaction WHERE username = %s ORDER BY timestamp DESC LIMIT 5"
+    cursor.execute(transfers, (username,))
     transfers = cursor.fetchall()
     
     cursor.close()

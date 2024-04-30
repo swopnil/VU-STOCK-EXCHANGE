@@ -1,105 +1,143 @@
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-
-    <title>Market News & Sentiment Trending</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/news.css">
     <meta http-equiv="Content-Security-Policy" content="img-src *;">
-   
     <style>
-        /* Navigation Bar Styles */
-        .navbar {
-            overflow: hidden;
-            background-color: #2c3e50; /* Set background color to black */
-            display: flex;
-            justify-content: space-between; /* Align items to the ends */
-            align-items: center;
-            padding: 10px;
-        }
-
-        .navbar-right {
-            display: flex;
-            justify-content: flex-end; /* Align items to the right */
-            align-items: center;
-        }
-
-        .navbar-left {
-            flex: 1;
-            text-align: left;
-        }
-
-        .navbar a {
-            color: #ecf0f1; /* Set text color to white */
-            text-align: center;
-            padding: 14px 20px;
-            text-decoration: none;
-        }
-
-        .navbar a:hover {
-            background-color: #34495e; /* Darken background color on hover */
-            color: white;
-        }
-
-        .active {
-            background-color: #3498db; /* Set active background color */
-            color: white;
-        }
-
-        .logo {
-            margin-left: 20px; /* Adjust margin */
-            max-height: 40px; /* Adjust max height */
-            max-width: 150px; /* Adjust max width */
-        }
+        /* CSS styles from dash.html */
+        /* ... */
     </style>
+    <title>Market News & Sentiment Trending</title>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <a class="navbar-brand" href="#">
-            <img src="https://i.ibb.co/m680bPM/v.png" alt="Logo" class="logo">
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="{{ url_for('user') }}">Home <span class="sr-only">(current)</span></a>
-                   
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('add_money') }}">Add Money</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Notification</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('get_news') }}">News</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('mystocks') }}">MyStocks</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-    <div class="container">
-        <h1>Market News & Sentiment Trending</h1>
-        <h2>News Data</h2>
-        <div>
-            <!-- Display news data here -->
-            {% for story in stories %}
-            <div class="news-item">
-                <h3 class="title">{{ story['title'] }}</h3>
-                <p>{{ story['description'] }}</p>
-                <p><a href="{{ story['url'] }}" target="_blank">Read more</a></p>
-                <!-- If available, display the favicon image -->
-                {% if 'favicon_url' in story %}
-                <img src="{{ story['favicon_url'] }}" alt="Favicon">
-                {% endif %}
+    <div class="app">
+        <!-- Header and navigation from dash.html -->
+        <!-- ... -->
+            <header class="app-header">
+                <div class="app-header-logo">
+                    <div class="logo">
+                        <span class="logo-icon">
+                            <img src="https://i.ibb.co/m680bPM/v.png" />
+                        </span>
+                        <h1 class="logo-title">
+                            <span>Villanova</span>
+                            <span>Exchange</span>
+                        </h1>
+                    </div>
+                </div>
+                <div class="app-header-navigation">
+                    <div class="tabs">
+                        <a href="#">
+                            Overview
+                        </a>
+                        <a href="#" class="active">
+                            Payments
+                        </a>
+                        <a href="#">
+                            Cards
+                        </a>
+                        <a href="#">
+                            Account
+                        </a>
+                        <a href="#">
+                            System
+                        </a>
+                        <a href="#">
+                            Business
+                        </a>
+                    </div>
+                </div>
+                <div class="app-header-actions">
+                    <button class="user-profile">
+                        <span>Swopnil</span>
+                        <span>
+                            <img src="https://i.ibb.co/m680bPM/v.png" />
+                        </span>
+                    </button>
+                    <div class="app-header-actions-buttons">
+                        <button class="icon-button large">
+                            <i class="ph-magnifying-glass"></i>
+                        </button>
+                        <button class="icon-button large">
+                            <i class="ph-bell"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="app-header-mobile">
+                    <button class="icon-button large">
+                        <i class="ph-list"></i>
+                    </button>
+                </div>
+        
+            </header>
+            <div class="app-body">
+                <div class="app-body-navigation">
+                    <nav class="navigation">
+                        <a href="{{ url_for('get_d') }}">
+                            <i class="ph-browsers"></i>
+                            <span>Dashboard</span>
+                        </a>
+                        <a href="{{ url_for('add_money') }}">
+                            <i class="ph-check-square"></i>
+                            <span>Add Money</span>
+                        </a>
+                        <a href="{{ url_for('trade') }}">
+                            <i class="ph-swap"></i>
+                            <span>Trade</span>
+                        </a>
+                        <a href="{{ url_for('mystocks') }}">
+                            <i class="ph-file-text"></i>
+                            <span>My Stocks</span>
+                        </a>
+                        <a href="{{ url_for('get_news') }}">
+                            <i class="ph-globe"></i>
+                            <span>News</span>
+                        </a>
+                        <a href="#">
+                            <i class="ph-clipboard-text"></i>
+                            <span>Exchange</span>
+                        </a>
+                    </nav>
+                    <footer class="footer">
+                        <h1>VillaStock<small>©</small></h1>
+                        <div>
+                            Swopnil ©<br />
+                            All Rights Reserved 2024
+                        </div>
+                    </footer>
+                </div>
+
+
+            <div class="app-body-main-content">
+                <section class="service-section">
+                    <h2>Market News & Sentiment Trending</h2>
+                    <div>
+                        <!-- Display news data here -->
+                        {% for story in stories %}
+                        <div class="news-item">
+                            <h3 class="title">{{ story['title'] }}</h3>
+                            <p>{{ story['description'] }}</p>
+                            <p><a href="{{ story['url'] }}" target="_blank">Read more</a></p>
+                            <!-- If available, display the favicon image -->
+                            {% if 'favicon_url' in story %}
+                            <img src="{{ story['favicon_url'] }}" alt="Favicon">
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
             </div>
-            {% endfor %}
+
+            <!-- Sidebar from dash.html -->
+            <!-- ... -->
         </div>
     </div>
 </body>
