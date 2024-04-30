@@ -1,9 +1,19 @@
 <html<!DOCTYPE html>
     <head>
-        <title>Financial Data Chart</title>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <title>Financial Data Chart
+
+        </title>
+        <script src="{{ url_for('static', filename='highcharts/highstock.js') }}"></script>
         <style>
             @import url("https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+    #chartContainer {
+    margin-top: 20px;
+    margin-bottom: 20px; /* Increase the bottom margin as needed */
+    margin-left: auto; /* Center the graph horizontally */
+    margin-right: auto; /* Center the graph horizontally */
+    max-width: 95%; /* Limit the maximum width */
+    height: 300px; /* Adjust the height as needed */
+}
 
 :root {
 	--c-gray-900: #000000;
@@ -16,8 +26,8 @@
 	--c-gray-200: #f1f1f1;
 	--c-gray-100: #ffffff;
 
-	--c-green-500: #45ffbc;
-	--c-olive-500: #e3ffa8;
+	--c-green-500: #008000;
+	--c-olive-500: #04b50a;
 
 	--c-white: var(--c-gray-100);
 
@@ -29,13 +39,21 @@
 body {
 	line-height: 1.5;
 	min-height: 100vh;
+    
 	font-family: "Be Vietnam Pro", sans-serif;
 	background-color: var(--c-gray-900);
 	color: var(--c-text-primary);
 	display: flex;
-	padding-top: 3vw;
+	padding-top: 2vw;
 	padding-bottom: 3vw;
 	justify-content: center;
+}
+.highcharts-scrollbar-thumb {
+    fill: #ffffff; /* Set the scrollbar thumb color */
+}
+
+.highcharts-scrollbar-track {
+    fill: transparent; /* Set the scrollbar track color to transparent */
 }
 
 *,
@@ -79,10 +97,13 @@ a {
 
 .app-header {
 	display: grid;
+    padding-top: -10rem; /* Adjust the top padding */
+    padding-bottom: 0.1rem; 
 	grid-template-columns: minmax(min-content, 175px) minmax(max-content, 1fr) minmax(
 			max-content,
 			400px
 		);
+        height: 100px;
 	column-gap: 4rem;
 	align-items: flex-end;
 	@media (max-width: 1200px) {
@@ -189,6 +210,16 @@ a {
 	}
 }
 
+
+    .tabs a {
+        font-size: 1.2em; /* Increase font size */
+        padding: 0.3em 0.7em; /* Add padding */
+    }
+
+    /* Push Content Above */
+    .app-body {
+        margin-top: 20px; /* Add margin-top */
+    }
 .logo-icon {
 	display: flex;
 	align-items: center;
@@ -212,6 +243,7 @@ a {
 
 .navigation {
 	display: flex;
+    height: 10px;
 	flex-direction: column;
 	align-items: flex-start;
 	color: var(--c-text-tertiary);
@@ -241,6 +273,13 @@ a {
 			color: var(--c-text-primary);
 		}
 	}
+}
+#stockSelect {
+    background-color: transparent; /* Set dropdown background color to transparent */
+    color: rgb(255, 255, 255); /* Change text color */
+    margin-bottom: 30px; /* Add space between the dropdown and the graph */
+    margin-top: 10px;
+    border: none;
 }
 
 .tabs {
@@ -588,6 +627,50 @@ a {
 		align-self: flex-end;
 	}
 }
+.payment-section {
+    margin-top: 2.5rem;
+}
+
+.payment-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.payment-section table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.payment-section th,
+.payment-section td {
+    padding: 0.75rem;
+    text-align: left;
+}
+
+.payment-section .symbol-label {
+    width: 40%; /* Adjust width as needed */
+}
+
+.payment-section .price-label {
+    width: 60%; /* Adjust width as needed */
+}
+
+.payment-section th,
+.payment-section td {
+    border-bottom: 1px solid var(--c-gray-600);
+}
+
+.payment-section th {
+    font-size: 1rem; /* Increase font size for labels */
+    font-weight: 600;
+    color: var(--c-text-tertiary);
+}
+
+.payment-section td {
+    font-size: 1.125rem; /* Increase font size for prices */
+    color: var(--c-text-primary);
+}
+
 
 .payment-details {
 	display: flex;
@@ -615,7 +698,23 @@ a {
 		}
 	}
 }
+#stockSelect {
+  margin-left: 10px; /* Adjust the left margin as needed */
+}
 
+/* Remove box from dropdown */
+#stockSelect {
+  border: none; /* Remove the border */
+  background-color: transparent; /* Set background color to transparent */
+  -webkit-appearance: none; /* Remove default appearance on WebKit browsers */
+  -moz-appearance: none; /* Remove default appearance on Mozilla browsers */
+  appearance: none; /* Remove default appearance */
+}
+.arrow-up, .arrow-down {
+            margin-left: 10px; /* Adjust the space between price and arrow */
+            font-size: 1.0em; /* Adjust arrow size */
+            margin-left: 5px;
+        }
 .filter-options {
 	margin-left: 1.25rem;
 	padding-left: 1.25rem;
@@ -644,18 +743,59 @@ a {
 }
 
 .transfer {
-	display: flex;
-	align-items: center;
-	width: 100%;
-	font-size: 0.875rem;
-	@media (max-width: 1000px) {
-		align-items: flex-start;
-		flex-direction: column;
-	}
-	& + * {
-		margin-top: 2rem;
-	}
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Adjust alignment */
+    width: 100%;
+    font-size: 0.875rem;
+    @media (max-width: 1000px) {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+    & + * {
+        margin-top: 2rem;
+    }
 }
+.payment-section table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.payment-section th,
+.payment-section td {
+    padding: 10px;
+    text-align: left;
+}
+
+.payment-section th {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--c-text-tertiary);
+}
+
+.payment-section td {
+    font-size: 1.125rem;
+    color: var(--c-text-primary);
+}
+
+.symbol-column,
+.action-column {
+    width: 20%; /* Adjust the width of the symbol and action columns */
+    text-align: center; /* Align text in the symbol and action columns to the center */
+}
+
+
+.transfers {
+    display: flex;
+    flex-direction: column;
+    margin-top: 1.5rem;
+    width: 100%; /* Ensure transfers span full width */
+}
+
+.price-label {
+            white-space: nowrap;
+        }
+
 
 .transfer-logo {
 	background-color: var(--c-gray-200);
@@ -671,16 +811,34 @@ a {
 }
 
 .transfer-details {
-	margin-left: 2rem;
+	margin-left: 3rem;
 	display: flex;
-	align-items: center;
+	align-items: left;
 	justify-content: space-between;
-	flex: 1;
+	flex: 2;
+    div {
+        display: flex;
+        flex-direction: column;
+        dt {
+            margin-bottom: 0rem; /* Adjust spacing between items */
+        }
+    }
 	@media (max-width: 1000px) {
 		flex-wrap: wrap;
 		margin-left: 0;
 		margin-top: 1rem;
 	}
+    .dropdown-field select {
+            background-color: transparent;
+            color: white;
+            padding: 0.5rem;
+            margin-right: 1.5rem;
+        }
+
+        /* Add space between selected stock and graph */
+        #stockChart {
+            margin-top: 20px; /* Adjust the margin as needed */
+        }
 	div {
 		width: calc(100% / 3 - 1rem);
 		@media (max-width: 1000px) {
@@ -705,7 +863,7 @@ a {
 	margin-left: 2rem;
 	font-size: 1.125rem;
 	flex-shrink: 0;
-	width: 15%;
+	width: 30%;
 	display: flex;
 	justify-content: flex-end;
 	@media (max-width: 1000px) {
@@ -767,7 +925,14 @@ a {
 		border-color: var(--c-white);
 	}
 }
+.arrow-up {
+            color: green;
+        }
 
+.arrow-down {
+            color: red;
+            margin-right: 8px;
+        }
 .faq {
 	margin-top: 1.5rem;
 	display: flex;
@@ -800,7 +965,14 @@ a {
 			width: 100%;
 		}
 	}
+
 }
+
+
+.highcharts-scrollbar {
+    display: none !important;
+}
+
 
 .payment-section-footer {
 	display: flex;
@@ -821,6 +993,11 @@ a {
 		color: var(--c-white);
 	}
 }
+
+.trending-stocks-label {
+            font-size: 1.5em; /* Adjust font size as needed */
+            color: white; /* Font color */
+        }
 
 .settings-button {
 	display: flex;
@@ -850,6 +1027,51 @@ button {
 		outline: 0;
 		box-shadow: 0 0 0 2px var(--c-gray-800), 0 0 0 4px var(--c-gray-300);
 	}
+}
+.available-money {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-top: 1px; /* Adjust as needed */
+}
+
+.money-info {
+    display: flex;
+    align-items: flex-start;
+    margin-right: 12px; /* Adjust spacing between items */
+}
+
+.money-amount {
+    color: red;
+    font-size: 14px; /* Adjust size as needed */
+}
+
+.percentage-change {
+    font-size: 14px; /* Adjust size as needed */
+    margin-left: 7px; /* Adjust spacing between amount and percentage */
+    color: red;
+}
+
+.date-info {
+    font-size: 14px; /* Adjust size as needed */
+}
+.container {
+    display: flex;
+}
+
+.transfer-section {
+    flex: 1;
+    margin-right: 20px; /* Add space between sections */
+}
+
+.stock-section {
+    width: 400px; /* Set fixed width for stock section */
+}
+
+.container {
+    display: grid;
+    grid-template-columns: 1fr 400px; /* Two columns: transactions and stock chart */
+    grid-gap: 20px; /* Gap between columns */
 }
 
         </style>
@@ -946,190 +1168,103 @@ button {
 				</a>
 			</nav>
 			<footer class="footer">
-				<h1>Almeria<small>©</small></h1>
+				<h1>VillaStock<small>©</small></h1>
 				<div>
-					Almeria ©<br />
-					All Rights Reserved 2021
+					Swopnil ©<br />
+					All Rights Reserved 2024
 				</div>
 			</footer>
 		</div>
 		<div class="app-body-main-content">
+
 			<section class="service-section">
-				<h2>Service</h2>
-				<div class="service-section-header">
-					<div class="search-field">
-						<i class="ph-magnifying-glass"></i>
-						<input type="text" placeholder="Account number">
-					</div>
-					<div class="dropdown-field">
-						<select>
-							<option>Home</option>
-							<option>Work</option>
-						</select>
-						<i class="ph-caret-down"></i>
-					</div>
-					<button class="flat-button">
-						Search
-					</button>
-				</div>
-				<div class="mobile-only">
-					<button class="flat-button">
-						Toggle search
-					</button>
-				</div>
-				<div class="tiles">
-					<article class="tile">
-						<div class="tile-header">
-							<i class="ph-lightning-light"></i>
-							<h3>
-								<span>Electricity</span>
-								<span>UrkEnergo LTD.</span>
-							</h3>
-						</div>
-						<a href="#">
-							<span>Go to service</span>
-							<span class="icon-button">
-								<i class="ph-caret-right-bold"></i>
-							</span>
-						</a>
-					</article>
-					<article class="tile">
-						<div class="tile-header">
-							<i class="ph-fire-simple-light"></i>
-							<h3>
-								<span>Heating Gas</span>
-								<span>Gazprom UA</span>
-							</h3>
-						</div>
-						<a href="#">
-							<span>Go to service</span>
-							<span class="icon-button">
-								<i class="ph-caret-right-bold"></i>
-							</span>
-						</a>
-					</article>
-					<article class="tile">
-						<div class="tile-header">
-							<i class="ph-file-light"></i>
-							<h3>
-								<span>Tax online</span>
-								<span>Kharkov 62 str.</span>
-							</h3>
-						</div>
-						<a href="#">
-							<span>Go to service</span>
-							<span class="icon-button">
-								<i class="ph-caret-right-bold"></i>
-							</span>
-						</a>
-					</article>
-				</div>
-				<div class="service-section-footer">
-					<p>Services are paid according to the current state of the currency and tariff.</p>
-				</div>
+                <div style="background-color: transparent; color: rgb(255, 255, 255); padding: 10px; border-radius: 5px; font-size: 24px; font-family: Arial, sans-serif;">${{ available_money }}</div>
+<div class="available-money">
+    <div class="money-info">
+        <span class="arrow-down">▼ </span   >
+        <span class="money-amount">$7.95</span>
+        <span class="percentage-change">(2.48%)</span>
+    </div>
+    <div class="date-info">Today</div>
+</div>
+                <div class="app-body-main-content">
+                    <section class="service-section">
+                        <div class="row justify-content-center">
+                            <div class="col-md-8">
+                                <div id="chartContainer"></div>
+                            </div>
+                        </div>
+                        </div>
 			</section>
+          
 			<section class="transfer-section">
-				<div class="transfer-section-header">
-					<h2>Latest transfers</h2>
-					<div class="filter-options">
-						<p>Filter selected: more than 100 $</p>
-						<button class="icon-button">
-							<i class="ph-funnel"></i>
-						</button>
-						<button class="icon-button">
-							<i class="ph-plus"></i>
-						</button>
-					</div>
-				</div>
-				<div class="transfers">
-					<div class="transfer">
-						<div class="transfer-logo">
-							<img src="https://assets.codepen.io/285131/apple.svg" />
-						</div>
-						<dl class="transfer-details">
-							<div>
-								<dt>Apple Inc.</dt>
-								<dd>Apple ID Payment</dd>
-							</div>
-							<div>
-								<dt>4012</dt>
-								<dd>Last four digits</dd>
-							</div>
-							<div>
-								<dt>28 Oct. 21</dt>
-								<dd>Date payment</dd>
-							</div>
-						</dl>
-						<div class="transfer-number">
-							- $ 550
-						</div>
-					</div>
-					<div class="transfer">
-						<div class="transfer-logo">
-							<img src="https://assets.codepen.io/285131/pinterest.svg" />
-						</div>
-						<dl class="transfer-details">
-							<div>
-								<dt>Pinterest</dt>
-								<dd>2 year subscription</dd>
-							</div>
-							<div>
-								<dt>5214</dt>
-								<dd>Last four digits</dd>
-							</div>
-							<div>
-								<dt>26 Oct. 21</dt>
-								<dd>Date payment</dd>
-							</div>
-						</dl>
-						<div class="transfer-number">
-							- $ 120
-						</div>
-					</div>
-					<div class="transfer">
-						<div class="transfer-logo">
-							<img src="https://assets.codepen.io/285131/warner-bros.svg" />
-						</div>
-						<dl class="transfer-details">
-							<div>
-								<dt>Warner Bros.</dt>
-								<dd>Cinema</dd>
-							</div>
-							<div>
-								<dt>2228</dt>
-								<dd>Last four digits</dd>
-							</div>
-							<div>
-								<dt>22 Oct. 21</dt>
-								<dd>Date payment</dd>
-							</div>
-						</dl>
-						<div class="transfer-number">
-							- $ 70
-						</div>
-					</div>
-				</div>
-			</section>
+                <div class="container1">
+                <div class="transfer-section-header">
+                    <h2>Latest transactions</h2>
+                </div>
+                <div class="transfers">
+                    {% for transfer in transfers %}
+                    <div class="transfer">
+                        <dl class="transfer-details">
+                            <div>
+                                <dt class="sdd">{{ transfer.company_name }}</dt>
+                                <dt class ="mmm">{{ transfer.transaction_type }}</dt>
+                            </div>
+                            <div>
+                                <dt class="date"> {{ transfer.timestamp }}</dt>
+
+                            </div>
+                            <script>
+                            var timestamp = "{{ transfer.timestamp }}";
+
+                            // Convert the timestamp string to a Date object
+                            var dateObj = new Date(timestamp);
+                        
+                            // Extract the date part
+                            var datePart = dateObj.toISOString().split('T')[0];
+                        
+                            // Display the date
+                            document.getElementById('date').textContent = datePart;
+                            </script>
+                        </dl>
+                        <div class="transfer-number">
+                            $ {{ transfer.amount }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div>
+                    <label for="stockSelect">Select Stock:</label>
+                    <select id="stockSelect" onchange="updateGraph()">
+                        <option value="">-- Select Stock --</option>
+                        {% for symbol, data in stocks.items() %}
+                            <option value="{{ symbol }}">{{ symbol }} - {{ data['company_name'] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div id="stockChart" style="height: 400px; width: 400px; " ></div>
+            </div>
+            </section>
+            
 		</div>
 		<div class="app-body-sidebar">
 			<section class="payment-section">
-                <h2>Symbol Price and Action</h2>
+                <h2 class="trending-stocks-label">Trending Stocks</h2>
                 <table>
-                    <thead>
-                        <tr>
-                            <th>Symbol</th>
-                           
-                            <th>Price</th>
-                           
-                         
-                        </tr>
-                    </thead>
+                    
                     <tbody>
                         {% for symbol, data in stocks.items() %}
                         <tr>
                             <td>{{ symbol }}</td>
                         
-                            <td>${{ data['price'] }}</td>
+                            <td>${{ data['price'] }}
+                                {% if data['price'] < 50 %}
+                                <span class="arrow-up">▲</span>
+                            {% else %}
+                                <span class="arrow-down">▼</span>
+                     
+                        {% endif %}
+                    </td>
                        
                            
                         </tr>
@@ -1143,6 +1278,146 @@ button {
 </div>
 
 
+				
 
+                 <script>
+        Highcharts.chart('stockChart', {
+           exporting: {
+        buttons: {
+            contextButton: {
+                theme: {
+                    fill: 'rgba(0, 0, 0, 0)', // Transparent fill color
+                    stroke: 'none', // No stroke
+                    'stroke-width': 0, // No stroke width
+                    r: 0, // No border radius
+                    style: {
+                        color: '#ffffff' // White color for the button text
+                    },
+                    states: {
+                        hover: {
+                            fill: 'rgba(255, 255, 255, 0.1)', // Transparent fill color on hover
+                            stroke: 'none', // No stroke on hover
+                            style: {
+                                color: '#ffffff' // White color for the button text on hover
+                            }
+                        },
+                        select: {
+                            fill: 'rgba(255, 255, 255, 0.1)', // Transparent fill color when selected
+                            stroke: 'none', // No stroke when selected
+                            style: {
+                                color: '#ffffff' // White color for the button text when selected
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+            // Other chart options...
+            series: [{
+                // Other series options...
+                color: '#008000', // Green color for the line
+            }],
+            xAxis: {
+                // Other xAxis options...
+                labels: {
+                    style: {
+                        color: '#ffffff' // White color for xAxis labels
+                    }
+                }
+            },
+            yAxis: {
+                // Other yAxis options...
+                labels: {
+                    style: {
+                        color: '#ffffff' // White color for yAxis labels
+                    }
+                }
+            },
+            // Other chart options...
+        });
+    </script>
+
+<script src="{{ url_for('static', filename='load.js') }}"></script>
+<!-- Bootstrap JS (Optional) -->
+<!-- jQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<!-- Bootstrap JS (Optional) -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- DevExpress JavaScript Library -->
+<script src="https://cdn3.devexpress.com/jslib/21.2.6/js/dx.all.js"></script>
+
+<script>
+    
+$(document).ready(function () {
+    // Get the timestamp from the transfer object
+   
+
+    var data = generateRandomData();
+    var chartOptions = {
+        dataSource: data,
+        commonSeriesSettings: {
+            
+            argumentField: "year",
+            type: "spline",
+            color: "green",
+            hoverMode: "allArgumentPoints", // Show tooltips for all points on hover
+            selectionMode: "none",
+            point: { visible: false }
+        },
+        series: [
+           
+            { valueField: "cluster" } 
+        ],
+        argumentAxis: {
+            discreteAxisDivisionMode: "crossLabels",
+            label: {
+                visible: false // Hide labels
+            },
+            visible: false,
+            grid: {
+                visible: false
+            },
+            tickInterval: 1
+        },
+        legend: {
+            horizontalAlignment: "right",
+            verticalAlignment: "top",
+            itemTextPosition: "right"
+        },
+        
+        valueAxis: {
+            visible: false,
+            grid: false // Remove Y-axis labels
+            ,label: {
+                visible: false // Hide labels
+            }
+        },
+        tooltip: {
+            enabled: true, // Enable tooltips
+            customizeTooltip: function (arg) {
+                return {
+                    text: arg.argument
+                };
+            }
+        }
+    };
+    $("#chartContainer").dxChart(chartOptions);
+});
+
+function generateRandomData() {
+    var data = [];
+    for (var i = 1; i <= 10; i++) {
+        data.push({
+            year: i,
+            smp: Math.floor(Math.random() * 100),
+            mmp: Math.floor(Math.random() * 100),
+            cnstl: Math.floor(Math.random() * 100),
+            cluster: Math.floor(Math.random() * 100)
+        });
+    }
+    return data;
+}
+</script>
 </body>
 </html>

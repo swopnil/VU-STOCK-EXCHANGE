@@ -567,6 +567,8 @@ def buy(symbol):
         username = session['username']
         if symbol in stocks:
             volume = int(request.form['volume'])
+            sale_amount = volume * stocks[symbol]['price']
+
             if stocks[symbol]['volume'] >= volume:
                 total_cost = volume * stocks[symbol]['price']
                 available_money = fetch_available_money(username)
@@ -586,6 +588,15 @@ def buy(symbol):
                         cursor = db.cursor()
                         query = "UPDATE stocks_list SET Price = %s, Volume = Volume - %s WHERE Symbol = %s"
                         cursor.execute(query, (new_price, volume, symbol))
+                        transaction_time = datetime.now()
+                        transaction_type = "buy"
+                        company_name = stocks[symbol]['company_name']
+                        amount = sale_amount
+                        number = volume
+                        query = "INSERT INTO transaction (username, timestamp, transaction_type, symbol, company_name, amount, number) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+                        cursor.execute(query, (username, transaction_time, transaction_type, symbol, company_name, amount, number))
+                        cursor.close()
+                        db.commit()
                         db.commit()
                         flash(f'You bought {volume} shares of {symbol} successfully', 'success')
                         flash(f'The price increased by {buy_ratio * 100}% due to buying', 'info')
@@ -626,6 +637,7 @@ def sell(symbol):
             if result and result[0] >= volume:
                 # Calculate the sale amount
                 sale_amount = volume * stocks[symbol]['price']
+                amount = sale_amount
                 # Update available money
                 if update_available_money(username, sale_amount):
                     # Decrease the price by 10% when selling
@@ -641,6 +653,14 @@ def sell(symbol):
                     cursor = db.cursor()
                     query = "UPDATE stocks_list SET Price = %s, Volume = Volume - %s WHERE Symbol = %s"
                     cursor.execute(query, (new_price, volume, symbol))
+                    transaction_time = datetime.now()
+                    transaction_type = "sell"
+                    company_name = stocks[symbol]['company_name']
+                    
+                    number = volume
+                    query = "INSERT INTO transaction (username, timestamp, transaction_type, symbol, company_name, amount, number) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+                    cursor.execute(query, (username, transaction_time, transaction_type, symbol, company_name, amount, number))
+                    cursor.close()
                     db.commit()
                     
                     flash(f'You sold {volume} shares of {symbol} successfully', 'success')
@@ -661,7 +681,7 @@ def sell(symbol):
     query = "SELECT Symbol, Volume FROM new_table WHERE Username = %s"
     cursor.execute(query, (username,))
     user_stocks = cursor.fetchall()
-    cursor.close()
+    
     return render_template('user.html', username=username, stocks=OrderedDict(sorted(stocks.items())), available_money=available_money, user_stocks=user_stocks)
 
 @app.route('/mystocks')
@@ -677,6 +697,14 @@ def mystocks():
         cursor.close()
     return render_template('my_stocks.html', user_stocks=user_stocks)
 
+@app.route('/latest_transfers')
+def latest_transfers():
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT company_name, transaction_type, timestamp, amount FROM transaction ORDER BY timestamp DESC LIMIT 3"
+    cursor.execute(query)
+    transfers = cursor.fetchall()
+    cursor.close()
+    return render_template('dash.html', transfers=transfers)
 
 @app.route('/add_stock', methods=['POST'])
 def add_stock():
@@ -816,11 +844,29 @@ def fetch_available_stocks():
 
 @app.route('/get_d')
 def get_d():
+    db = mysql.connector.connect(
+            host="stock100-swopnil100-1453.h.aivencloud.com",
+            port=11907,
+            user="avnadmin",
+            passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
+            database="Stock",
+        )
+    cursor = db.cursor(dictionary=True)
     # Fetch required data from the database or other sources
     # For example, let's assume you want to fetch the available stocks and their prices
-    available_stocks = fetch_available_stocks()  # Implement this function to fetch available stocks from your database
+    available_stocks = fetch_available_stocks() 
+
+    username = session.get('username')
+    query_transactions = "SELECT timestamp, transaction_type, symbol, company_name, amount, number FROM transaction WHERE username = %s ORDER BY timestamp DESC LIMIT 5"
+    cursor.execute(query_transactions, (username,))
+    transfers = cursor.fetchall()
+    
+    cursor.close()
+    
+     # Implement this function to fetch available stocks from your database
+    available_money=fetch_available_money(username)
     # Pass the fetched data to the dash.html template
-    return render_template('dash.html', available_stocks=available_stocks, stocks=OrderedDict(sorted(stocks.items())))
+    return render_template('dash.html', available_stocks=available_stocks, stocks=OrderedDict(sorted(stocks.items())),available_money=available_money,transfers=transfers)
 
 if __name__ == '__main__':
     app.run(debug=True)

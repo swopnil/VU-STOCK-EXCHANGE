@@ -1,5 +1,3 @@
-import random
-import datetime
 import mysql.connector
 
 # Define the database connection
@@ -11,33 +9,26 @@ db = mysql.connector.connect(
     database="Stock",
 )
 
-# Define the list of stock names
-stock_names = ['AMD']
+# Create a cursor object
+cursor = db.cursor()
 
-# Insert random data for all 12 months
-for month in range(1, 13):
-    for day in range(1, 32):
-        try:
-            # Get the current date and time
-            date = datetime.datetime(2023, month, day).strftime('%Y-%m-%d %H:%M:%S')
-            
-            # Generate a random stock name
-            stock_name = 'AMD'
-            
-            # Generate a random price between 100 and 200
-            price = round(random.uniform(100, 200), 2)
-            
-            # Generate a random volume between 1000 and 10000
-            volume = random.randint(1000, 10000)
-            
-            # Insert the data into the NTT table
-            cursor = db.cursor()
-            cursor.execute("INSERT INTO NTT (Name, Price, Volume, Time) VALUES (%s, %s, %s, %s)",
-                           (stock_name, price, volume, date))
-            db.commit()
-        except ValueError:
-            # Ignore dates that don't exist (e.g. February 30)
-            pass
+# Define the SQL query
+sql_query = "SELECT * FROM `transaction`"
 
-# Close the database connection
+# Execute the SQL query
+cursor.execute(sql_query)
+
+# Fetch all the rows from the result set
+rows = cursor.fetchall()
+
+# Display the column names
+column_names = [desc[0] for desc in cursor.description]
+print("\t".join(column_names))
+
+# Display the contents of the table
+for row in rows:
+    print("\t".join(map(str, row)))
+
+# Close the cursor and database connection
+cursor.close()
 db.close()
