@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     var stockChart;
-    var defaultSymbol = 'AAPL'; // Default stock symbol
+    var defaultSymbol = 'AMD'; // Default stock symbol
     let selectedSymbol = defaultSymbol; // Store the currently selected symbol
     let previousSymbol = defaultSymbol; // Store the previously selected symbol
     let timeoutId = null; // Store the timeout ID
@@ -151,5 +151,5 @@ document.addEventListener('DOMContentLoaded', function() {
             event.preventDefault();
         });
     });
-    
+    updateGraph(defaultSymbol);
 });
