@@ -4,6 +4,11 @@ document.addEventListener('DOMContentLoaded', function() {
     let selectedSymbol = defaultSymbol; // Store the currently selected symbol
     let previousSymbol = defaultSymbol; // Store the previously selected symbol
     let timeoutId = null; // Store the timeout ID
+    createChart(defaultSymbol);
+
+     // Replace "{{ default_symbol }}" with the default symbol you want to select
+
+
     // let selectedRange = 0;
 
     function updateGraph(symbol,selectedRange) {

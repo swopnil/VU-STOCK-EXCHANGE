@@ -340,12 +340,12 @@ a {
 }
 
 .icon-button {
-	width: 32px;
-	height: 32px;
+	width: 60px;
+	height: 40px;
 	border-radius: 50%;
 	border: 0;
 	background-color: transparent;
-	border: 1px solid var(--c-gray-500);
+	
 	color: var(--c-text-primary);
 	display: flex;
 	align-items: center;
@@ -358,8 +358,9 @@ a {
 		height: 42px;
 		font-size: 1.25em;
 	}
+	
 
-	i {
+	a {
 		transition: 0.25s ease;
 	}
 
@@ -423,6 +424,7 @@ a {
 
 		.icon-button {
 			color: inherit;
+
 			border-color: inherit;
 			&:hover,
 			&:focus {

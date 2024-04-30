@@ -111,8 +111,8 @@ def decrease_balance(username, amount):
 
         cursor = db.cursor()
 
-        update_query = "UPDATE bankdata SET balance = balance - %s WHERE card_holder_name = %s AND balance >= %s"
-        cursor.execute(update_query, (amount, username, amount))
+        update_query = "UPDATE bankdata SET balance = balance - %s WHERE card_holder_name = %s"
+        cursor.execute(update_query, (amount, username))
 
         if cursor.rowcount > 0:
             # Update available money in the ID table
@@ -133,6 +133,38 @@ def decrease_balance(username, amount):
         return False
 
    
+def increase_balance(username, amount):
+    try:
+        db = mysql.connector.connect(
+            host="stock100-swopnil100-1453.h.aivencloud.com",
+            port=11907,
+            user="avnadmin",
+            passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
+            database="Stock"
+        )
+
+        cursor = db.cursor()
+
+        update_query = "UPDATE bankdata SET balance = balance + %s WHERE card_holder_name = %s "
+        cursor.execute(update_query, (amount, username))
+
+        if cursor.rowcount > 0:
+            # Update available money in the ID table
+            update_money_query = "UPDATE ID SET Money = Money - %s WHERE Username = %s"
+            cursor.execute(update_money_query, (amount, username))
+            
+            db.commit()
+            cursor.close()
+            db.close()
+            return True
+        else:
+            db.rollback()
+            cursor.close()
+            db.close()
+            return False
+    except Exception as e:
+        print("Error decreasing balance:", e)
+        return False
 
 # Connect to the MySQL database
 db = mysql.connector.connect(
@@ -146,10 +178,14 @@ db = mysql.connector.connect(
 def add_money():
     username = session.get('username')
     available_money=fetch_available_money(username)
+    
     if request.method == 'POST':
         payment_method = request.form['payment_method']
         amount = float(request.form['amount'])
         username = session.get('username')
+        
+
+
        
 
 
@@ -171,7 +207,9 @@ def add_money():
                 cursor.close()
                 if result:
                     if decrease_balance(card_holder_name, amount):
-                        update_available_money(username, amount)
+                        update_available_money(username,amount)
+                        available_money=fetch_available_money(username)
+                       
 
                         flash(f'Payment of ${amount} successful', 'success')
                     else:
@@ -192,7 +230,9 @@ def add_money():
 
                 if result:
                     if decrease_balance(card_holder_name, amount):
-                        update_available_money(username, amount)
+                        update_available_money(username,amount)
+                        available_money=fetch_available_money(username)
+
 
                         flash(f'Payment of ${amount} successful', 'success')
                     else:
@@ -203,6 +243,7 @@ def add_money():
         except Exception as e:
             flash(f'Error: {str(e)}', 'error')
             # Log the error for debugging purposes
+
 
     # Render the add_money.html template with flash messages
     return render_template('add_money.html',available_money=available_money)
@@ -276,7 +317,73 @@ csp = {
 
 
 }
+@app.route('/withdraw', methods=['GET', 'POST'])
+def withdraw():
+    username = session.get('username')
+    available_money=fetch_available_money(username)
+    if request.method == 'POST':
+        payment_method = request.form['payment_method']
+        amount = float(request.form['amount'])
+        username = session.get('username')
+       
 
+
+        if username is None:
+            flash('User not logged in', 'error')
+            return redirect(url_for('login'))
+
+        try:
+            if payment_method == 'credit_card':
+                card_number = request.form['card_number']
+                expiry_date = request.form['expiry_date']
+                card_holder_name=request.form['card_holder_name']
+                cvv = request.form['cvv']
+
+                cursor = db.cursor()
+                query = "SELECT * FROM bankdata WHERE card_number = %s AND expiry_date = %s AND cvv = %s"
+                cursor.execute(query, (card_number, expiry_date, cvv))
+                result = cursor.fetchone()
+                cursor.close()
+                if result:
+                    if increase_balance(card_holder_name, amount):
+                        update_available_money1(username,amount)
+                        available_money=fetch_available_money(username)
+
+                        flash(f'Withdraw of ${amount} successful', 'success')
+                    else:
+                        flash('Error updating balance', 'error')
+            elif payment_method == 'bank':
+                bank_name = request.form['bank_name']
+                account_number = request.form['account_number']
+                routing_number = request.form['routing_number']
+                card_holder_name=request.form['account_holder_name']
+
+                
+
+                cursor = db.cursor()
+                query = "SELECT * FROM bankdata WHERE bank_name = %s AND account_number = %s AND routing_number = %s"
+                cursor.execute(query, (bank_name, account_number, routing_number))
+                result = cursor.fetchone()
+                cursor.close()
+
+                if result:
+                    if increase_balance(card_holder_name, amount):
+                        update_available_money1(username, amount)
+                        available_money=fetch_available_money(username)
+
+
+                        flash(f'Withdraw of ${amount} successful', 'success')
+                    else:
+                        flash('Error updating balance', 'error')
+                else:
+                    flash('Invalid bank details', 'error')
+
+        except Exception as e:
+            flash(f'Error: {str(e)}', 'error')
+            # Log the error for debugging purposes
+
+    # Render the add_money.html template with flash messages
+    return render_template('withdraw.html',available_money=available_money)
 app.secret_key = 'your_secret_key'
 import mysql.connector
 
@@ -551,7 +658,17 @@ def update_available_money(username, amount):
     except Exception as e:
         print("Error updating available money:", e)
         return False
-
+def update_available_money1(username, amount):
+    try:
+        cursor = db.cursor()
+        query = "UPDATE ID SET Money = Money - %s WHERE Username = %s"
+        cursor.execute(query, (amount, username))
+        db.commit()
+        cursor.close()
+        return True
+    except Exception as e:
+        print("Error updating available money:", e)
+        return False
 # Function to update the "My Stocks" table for a user
 # Function to update the user's stock portfolio in the database
 # Function to update the user's stock portfolio in the database
@@ -908,7 +1025,7 @@ def get_d():
      # Implement this function to fetch available stocks from your database
     available_money=fetch_available_money(username)
     # Pass the fetched data to the dash.html template
-    return render_template('dash.html', available_stocks=available_stocks, stocks=OrderedDict(sorted(stocks.items())),available_money=available_money,transfers=transfers)
+    return render_template('dash.html',username=username, available_stocks=available_stocks, stocks=OrderedDict(sorted(stocks.items())),available_money=available_money,transfers=transfers)
 @app.route('/trade')
 
 def trade():

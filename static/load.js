@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let previousSymbol = defaultSymbol; // Store the previously selected symbol
     let timeoutId = null; // Store the timeout ID
     // let selectedRange = 0;
+    updateGraph(defaultSymbol);
 
     function updateGraph(symbol,selectedRange) {
         if (symbol !== previousSymbol) {

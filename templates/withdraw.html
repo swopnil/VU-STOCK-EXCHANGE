@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Add Money</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='add.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='with.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/icons@1.4.2/icons.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap">
 </head>
@@ -110,14 +110,14 @@
                 <div class="add-money-section-header">
                     
 
-                    <h2>Add Money</h2>
+                    <h2>Withdraw Money</h2>
                 </div>
 
                 {% for message in get_and_remove_flash_messages() %}
                     <div class="flash-message {{ message.category }}">{{ message.message }}</div>
                 {% endfor %}
 
-                <form method="POST" action="{{ url_for('add_money') }}">
+                <form method="POST" action="{{ url_for('withdraw') }}">
                     <div class="form-group">
                         <label for="payment_method">Payment Method:</label>
                         <select id="payment_method" name="payment_method" class="form-control">
@@ -170,7 +170,7 @@
                             <input type="number" id="amount" name="amount" min="0" step="0.01" class="form-control" required>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Add Money</button>
+                        <button type="submit" class="btn btn-primary">Withdraw Money</button>
                     </div>
                 </form>
 
