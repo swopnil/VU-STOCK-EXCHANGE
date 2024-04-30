@@ -67,13 +67,14 @@ a {
 
 .app-header {
 	display: grid;
-    padding-top: -10rem; /* Adjust the top padding */
-    padding-bottom: 0.1rem; 
+    display: grid;
+    padding-top: 0rem;
+    padding-bottom: 0.1rem;
+
 	grid-template-columns: minmax(min-content, 175px) minmax(max-content, 1fr) minmax(
 			max-content,
 			400px
 		);
-        height: 100px;
 	column-gap: 4rem;
 	align-items: flex-end;
 	@media (max-width: 1200px) {
@@ -98,16 +99,48 @@ a {
 	}
 }
 
+.app-header-actions {
+	display: flex;
+	align-items: center;
+	@media (max-width: 1200px) {
+		display: none;
+	}
+}
+
 .app-header-actions-buttons {
+
+	width: 120px; /* Adjust the width as desired */
+	height: 40px; /* Adjust the height as desired */
+	background-color: transparent; /* Set the initial background color (e.g., tomato red) */
+    color: var(--c-gray-600); /* Set the text color */
+    border: none;
+    border-radius: 4px; /* Add rounded corners */
+    transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+
 	display: flex;
 	border-left: 1px solid var(--c-gray-600);
 	margin-left: 2rem;
 	padding-left: 2rem;
+    
 
 	& > * + * {
 		margin-left: 1rem;
 	}
 }
+.app-header-actions-buttons button i {
+    margin-right: 8px; /* Adjust the spacing between the icon and text */
+    margin-top: 0px;
+}
+.app-header-actions-buttons button {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Add a drop shadow */
+}
+.app-header-actions-buttons button {
+    font-family: 'Arial', sans-serif; /* Set the font family */
+    font-size: 16px; /* Set the font size */
+    font-weight: bold; /* Set the font weight */
+	color: rgb(144, 139, 139);
+}
+
 
 .app-header-mobile {
 	display: none;
@@ -257,6 +290,8 @@ a {
 	justify-content: space-between;
 	color: var(--c-text-tertiary);
 	border-bottom: 1px solid var(--c-gray-600);
+    margin-top: 0.8rem; /* Add this line */
+
 
 	a {
 		padding-top: 1rem;
@@ -315,12 +350,12 @@ a {
 }
 
 .icon-button {
-	width: 32px;
-	height: 32px;
+	width: 3px;
+	height: 3px;
 	border-radius: 50%;
 	border: 0;
 	background-color: transparent;
-	border: 1px solid var(--c-gray-500);
+	
 	color: var(--c-text-primary);
 	display: flex;
 	align-items: center;
@@ -329,8 +364,8 @@ a {
 	transition: 0.25s ease;
 	flex-shrink: 0;
 	&.large {
-		width: 42px;
-		height: 42px;
+		width: 3px;
+		height: 3px;
 		font-size: 1.25em;
 	}
 
@@ -445,6 +480,98 @@ a {
 			font-weight: 200;
 		}
 	}
+}
+.app-body-main-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.add-money-section {
+    max-width: 600px;
+    width: 100%;
+    background-color: var(--c-gray-800);
+    padding: 2rem;
+    border-radius: 8px;
+}
+
+.add-money-section-header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--c-gray-600);
+}
+
+.add-money-section-header h2 {
+    font-size: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: 1rem;
+    color: var(--c-text-tertiary);
+    margin-bottom: 1rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--c-gray-600);
+    background-color: transparent;
+    color: var(--c-text-primary);
+    border-radius: 4px;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: var(--c-olive-500);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(4, 181, 10, 0.25);
+}
+
+.btn-primary {
+    background-color: var(--c-olive-500);
+    color: var(--c-gray-900);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: var(--c-green-500);
+}
+
+.flash-message {
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.flash-message.success {
+    background-color: var(--c-green-500);
+    color: var(--c-gray-900);
+}
+
+.add-money-section-footer {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.add-money-section-footer a {
+    color: var(--c-text-tertiary);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.add-money-section-footer a:hover {
+    color: var(--c-text-primary);
 }
 
 .trade-section-header {

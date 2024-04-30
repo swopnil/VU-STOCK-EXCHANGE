@@ -99,16 +99,80 @@ a {
 	}
 }
 
+.app-header-actions {
+	display: flex;
+	align-items: center;
+	@media (max-width: 1200px) {
+		display: none;
+	}
+}
+
 .app-header-actions-buttons {
+
+	width: 120px; /* Adjust the width as desired */
+	height: 40px; /* Adjust the height as desired */
+	background-color: transparent; /* Set the initial background color (e.g., tomato red) */
+    color: var(--c-gray-600); /* Set the text color */
+    border: none;
+    border-radius: 4px; /* Add rounded corners */
+    transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+
 	display: flex;
 	border-left: 1px solid var(--c-gray-600);
 	margin-left: 2rem;
 	padding-left: 2rem;
+    
 
 	& > * + * {
 		margin-left: 1rem;
 	}
 }
+.app-header-actions-buttons button i {
+    margin-right: 8px; /* Adjust the spacing between the icon and text */
+    margin-top: 0px;
+}
+.app-header-actions-buttons button {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Add a drop shadow */
+}
+.app-header-actions-buttons button {
+    font-family: 'Arial', sans-serif; /* Set the font family */
+    font-size: 16px; /* Set the font size */
+    font-weight: bold; /* Set the font weight */
+	color: rgb(144, 139, 139);
+}
+.icon-button {
+	width: 3px;
+	height: 3px;
+	border-radius: 50%;
+	border: 0;
+	background-color: transparent;
+	
+	color: var(--c-text-primary);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: 0.25s ease;
+	flex-shrink: 0;
+	&.large {
+		width: 3px;
+		height: 35px;
+		font-size: 1.25em;
+	}
+
+	i {
+		transition: 0.25s ease;
+	}
+
+	&:hover,
+	&:focus {
+		background-color: var(--c-gray-600);
+		box-shadow: 0 0 0 4px var(--c-gray-800), 0 0 0 5px var(--c-text-tertiary);
+	}
+}
+
+
+
 
 .app-header-mobile {
 	display: none;
@@ -312,37 +376,6 @@ a {
 		overflow: hidden;
 		margin-left: 1.5rem;
 		flex-shrink: 0;
-	}
-}
-
-.icon-button {
-	width: 32px;
-	height: 32px;
-	border-radius: 50%;
-	border: 0;
-	background-color: transparent;
-	border: 1px solid var(--c-gray-500);
-	color: var(--c-text-primary);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	cursor: pointer;
-	transition: 0.25s ease;
-	flex-shrink: 0;
-	&.large {
-		width: 42px;
-		height: 42px;
-		font-size: 1.25em;
-	}
-
-	i {
-		transition: 0.25s ease;
-	}
-
-	&:hover,
-	&:focus {
-		background-color: var(--c-gray-600);
-		box-shadow: 0 0 0 4px var(--c-gray-800), 0 0 0 5px var(--c-text-tertiary);
 	}
 }
 

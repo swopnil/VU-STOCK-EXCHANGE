@@ -18,6 +18,15 @@
 }
 
 .app-header-actions-buttons {
+
+	width: 120px; /* Adjust the width as desired */
+	height: 40px; /* Adjust the height as desired */
+	background-color: transparent; /* Set the initial background color (e.g., tomato red) */
+    color: var(--c-gray-600); /* Set the text color */
+    border: none;
+    border-radius: 4px; /* Add rounded corners */
+    transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+
 	display: flex;
 	border-left: 1px solid var(--c-gray-600);
 	margin-left: 2rem;
@@ -27,7 +36,18 @@
 		margin-left: 1rem;
 	}
 }
-
+.app-header-actions-buttons button i {
+    margin-right: 8px; /* Adjust the spacing between the icon and text */
+}
+.app-header-actions-buttons button {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Add a drop shadow */
+}
+.app-header-actions-buttons button {
+    font-family: 'Arial', sans-serif; /* Set the font family */
+    font-size: 16px; /* Set the font size */
+    font-weight: bold; /* Set the font weight */
+	color: rgb(144, 139, 139);
+}
 
 :root {
 	--c-gray-900: #000000;

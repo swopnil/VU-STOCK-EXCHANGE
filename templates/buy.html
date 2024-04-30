@@ -50,14 +50,17 @@
 				</span>
 			</button>
 			<div class="app-header-actions-buttons">
-				<button class="icon-button large">
-					<i class="ph-magnifying-glass"></i>
-				</button>
-				<button class="icon-button large">
-					<i class="ph-bell"></i>
-				</button>
+               
+				<a href="{{ url_for('logout') }}">
+                    <button class="icon-button large">
+                        <i class="ph-sign-out"></i> Logout
+                    </button>
+                </a>
+                
+                
+				
 			</div>
-		</div>
+        </div>
 		<div class="app-header-mobile">
 			<button class="icon-button large">
 				<i class="ph-list"></i>

@@ -114,20 +114,7 @@ def decrease_balance(username, amount):
         update_query = "UPDATE bankdata SET balance = balance - %s WHERE card_holder_name = %s"
         cursor.execute(update_query, (amount, username))
 
-        if cursor.rowcount > 0:
-            # Update available money in the ID table
-            update_money_query = "UPDATE ID SET Money = Money + %s WHERE Username = %s"
-            cursor.execute(update_money_query, (amount, username))
-            
-            db.commit()
-            cursor.close()
-            db.close()
-            return True
-        else:
-            db.rollback()
-            cursor.close()
-            db.close()
-            return False
+       
     except Exception as e:
         print("Error decreasing balance:", e)
         return False
@@ -148,20 +135,6 @@ def increase_balance(username, amount):
         update_query = "UPDATE bankdata SET balance = balance + %s WHERE card_holder_name = %s "
         cursor.execute(update_query, (amount, username))
 
-        if cursor.rowcount > 0:
-            # Update available money in the ID table
-            update_money_query = "UPDATE ID SET Money = Money - %s WHERE Username = %s"
-            cursor.execute(update_money_query, (amount, username))
-            
-            db.commit()
-            cursor.close()
-            db.close()
-            return True
-        else:
-            db.rollback()
-            cursor.close()
-            db.close()
-            return False
     except Exception as e:
         print("Error decreasing balance:", e)
         return False
@@ -321,6 +294,7 @@ csp = {
 def withdraw():
     username = session.get('username')
     available_money=fetch_available_money(username)
+    
     if request.method == 'POST':
         payment_method = request.form['payment_method']
         amount = float(request.form['amount'])
