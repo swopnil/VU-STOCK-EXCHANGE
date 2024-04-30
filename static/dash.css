@@ -8,6 +8,27 @@
     width: 800px;
 }
 
+
+.app-header-actions {
+	display: flex;
+	align-items: center;
+	@media (max-width: 1200px) {
+		display: none;
+	}
+}
+
+.app-header-actions-buttons {
+	display: flex;
+	border-left: 1px solid var(--c-gray-600);
+	margin-left: 2rem;
+	padding-left: 2rem;
+
+	& > * + * {
+		margin-left: 1rem;
+	}
+}
+
+
 :root {
 	--c-gray-900: #000000;
 	--c-gray-800: #1f1f1f;
@@ -30,25 +51,11 @@
 }
 
 body {
-	line-height: 1.5;
-	min-height: 100vh;
-    
+	
 	font-family: "Be Vietnam Pro", sans-serif;
 	background-color: var(--c-gray-900);
 	color: var(--c-text-primary);
-	display: flex;
-	padding-top: 2vw;
-	padding-bottom: 3vw;
-	justify-content: center;
 }
-.highcharts-scrollbar-thumb {
-    fill: #ffffff; /* Set the scrollbar thumb color */
-}
-
-.highcharts-scrollbar-track {
-    fill: transparent; /* Set the scrollbar track color to transparent */
-}
-
 *,
 *:before,
 *:after {
@@ -80,13 +87,21 @@ a {
 
 .app {
 	min-height: 80vh;
-	width: 100%;
-	max-width: 1600px;
+	width: 100vw;
+	max-width: none;
+
 	background-color: var(--c-gray-800);
-	padding: 2vw 4vw 6vw;
+	padding: 0vw 2vw 1vw;
 	display: flex;
 	flex-direction: column;
-    
+	
+		
+		
+		
+		
+		
+		
+	
 }
 
 .app-header {
@@ -114,24 +129,8 @@ a {
 	}
 }
 
-.app-header-actions {
-	display: flex;
-	align-items: center;
-	@media (max-width: 1200px) {
-		display: none;
-	}
-}
+ 
 
-.app-header-actions-buttons {
-	display: flex;
-	border-left: 1px solid var(--c-gray-600);
-	margin-left: 2rem;
-	padding-left: 2rem;
-
-	& > * + * {
-		margin-left: 1rem;
-	}
-}
 
 .app-header-mobile {
 	display: none;
@@ -168,9 +167,7 @@ a {
 	}
 }
 
-.app-body-sidebar {
 
-}
 
 .footer {
 	margin-top: auto;
@@ -199,7 +196,6 @@ a {
 	align-items: center;
 	padding-bottom: 1rem;
 	padding-top: 1rem;
-	border-bottom: 1px solid var(--c-gray-600);
 	@media (max-width: 1200px) {
 		border-bottom: 0;
 	}
@@ -340,12 +336,11 @@ a {
 }
 
 .icon-button {
-	width: 60px;
-	height: 40px;
+	width: 32px;
+	height: 32px;
 	border-radius: 50%;
 	border: 0;
 	background-color: transparent;
-	
 	color: var(--c-text-primary);
 	display: flex;
 	align-items: center;
@@ -358,9 +353,8 @@ a {
 		height: 42px;
 		font-size: 1.25em;
 	}
-	
 
-	a {
+	i {
 		transition: 0.25s ease;
 	}
 
@@ -424,7 +418,6 @@ a {
 
 		.icon-button {
 			color: inherit;
-
 			border-color: inherit;
 			&:hover,
 			&:focus {
@@ -1084,6 +1077,9 @@ button {
 .container1,
 .container2 {
     flex: 1; /* This will make the containers take up equal space */
+	margin-left: 20px;
+
+
 }
 
 
@@ -1091,7 +1087,7 @@ button {
     display: flex;
     align-items: center;
     justify-content: space-between; /* Adjust alignment */
-    width: 100%;
+    width: 90%;
     font-size: 0.875rem;
     @media (max-width: 1000px) {
         align-items: flex-start;
@@ -1125,7 +1121,7 @@ button {
 }
 .transfer-section-header, .stock-label {
     max-width: 200px;
-    margin: 10px 20px 0 0;
+    margin: 20px 20px 0 0;
     padding:0;
 
 }
@@ -1140,7 +1136,9 @@ button {
 }
 
 .container1 {
-    margin-left: 10px;
+    margin-left: 20px;
+	margin-left: 20px;
+
     
 }
 
