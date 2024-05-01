@@ -153,21 +153,26 @@
 									<dt class ="mmm">{{ transfer.transaction_type }}</dt>
 								</div>
 								<div>
-									<dt class="date"> {{ transfer.timestamp }}</dt>
+									<dt class="date"> </dt>
 
 								</div>
 								<script>
-								var timestamp = "{{ transfer.timestamp }}";
+                                     var timestamp = "{{ transfer.timestamp }}";
 
-								// Convert the timestamp string to a Date object
-								var dateObj = new Date(timestamp);
-							
-								// Extract the date part
-								var datePart = dateObj.toISOString().split('T')[0];
-							
-								// Display the date
-								document.getElementById('date').textContent = datePart;
-                                console.log(datePart)
+// Convert the timestamp string to a Date object
+var dateObj = new Date(timestamp);
+
+// Get the month and day
+var month = dateObj.toLocaleString('default', { month: 'long' });
+var day = dateObj.getDate();
+var year = dateObj.getFullYear();
+
+
+// Combine month and day into a string
+var dateString = month + ' ' + day + ', ' + year;
+
+// Display the date
+document.write(dateString);
 								</script>
 							</dl>
 							<div class="transfer-number">

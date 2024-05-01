@@ -484,6 +484,7 @@ def user():
 
     username = session.get('username')
     transfers = "SELECT timestamp, transaction_type, symbol, company_name, amount, number FROM transaction WHERE username = %s ORDER BY timestamp DESC LIMIT 5"
+   
     cursor.execute(transfers, (username,))
     transfers = cursor.fetchall()
    
@@ -800,8 +801,11 @@ def latest_transfers():
 
     username = session.get('username')
     transfers = "SELECT timestamp, transaction_type, symbol, company_name, amount, number FROM transaction WHERE username = %s ORDER BY timestamp DESC LIMIT 5"
+
+  
     cursor.execute(transfers, (username,))
     transfers = cursor.fetchall()
+   
     
     cursor.close()
     
