@@ -401,28 +401,7 @@ import time
 from datetime import datetime
 import time
 from datetime import datetime
-@app.route('/money')
-def get_money():
-    if 'username' in session:
-        username = session['username']
-        # Connect to the database and fetch the user's money
-        db = mysql.connector.connect(
-        host="stock100-swopnil100-1453.h.aivencloud.com",
-        port=11907,
-        user="avnadmin",
-        passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
-        database="Stock",
-        )
-        cursor = db.cursor()
-        query = "SELECT money FROM ID WHERE username = %s"
-        cursor.execute(query, (username,))
-        result = cursor.fetchone()
-        cursor.close()
-        db.close()
-        if result:
-            money = result[0]
-            return jsonify({'money': money})
-    return jsonify({'money': None})
+
 def update_stock_data(stocks):
     while True:
         current_time = datetime.now()
@@ -905,14 +884,37 @@ def delete_stock(symbol):
     return redirect(url_for('admin'))
 
 
-@app.route('/prices/<symbol>')
-def get_prices(symbol):
+@app.route('/money')
+def get_money():
+    if 'username' in session:
+        username = session['username']
+        # Connect to the database and fetch the user's money
+        db = mysql.connector.connect(
+        host="stock100-swopnil100-1453.h.aivencloud.com",
+        port=11907,
+        user="avnadmin",
+        passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
+        database="Stock",
+        )
+        cursor = db.cursor()
+        query = "SELECT money FROM ID WHERE username = %s"
+        cursor.execute(query, (username,))
+        result = cursor.fetchone()
+        cursor.close()
+        db.close()
+        if result:
+            money = result[0]
+            return jsonify({'money': money})
+    return jsonify({'money': None})
 
-    
+
+from datetime import datetime
+
+@app.route('/prices/<symbol>')
+def get_prices(symbol):    
     if symbol in stocks:
         limit = request.args.get('limit', default=10, type=int)  # Get the 'limit' query parameter (default to 10)
-        real_time_prices = get_real_time_prices(symbol, limit)
-       
+        real_time_prices = get_real_time_prices(symbol, limit)    
         if real_time_prices:
             timestamps = [data['Time'] for data in real_time_prices]
             prices = [data['Price'] for data in real_time_prices]
