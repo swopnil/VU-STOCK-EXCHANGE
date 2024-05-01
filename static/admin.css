@@ -1,106 +1,173 @@
-#welcome, #available {
-    display: inline-block; /* Change from block to inline-block */
-    margin: 20px auto 10px; 
-    padding: 10px 20px;
-    border: none; 
-    border-radius: 3px; 
-    background-color: #007bff;
-    color: #fff; 
-    background-size: cover;
+/* Import the font */
+@import url("https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 
+/* General styles */
+body {
+    font-family: "Be Vietnam Pro", sans-serif;
+    background-color: var(--c-gray-800);
+    color: var(--c-text-primary);
 }
-#stockSelect {
-    display: block; /* Make the select element a block element */
-    margin-top: 20px; /* Add margin to the top */
+
+/* Color variables */
+:root {
+    --c-gray-900: #000000;
+    --c-gray-800: #1f1f1f;
+    --c-gray-700: #2e2e2e;
+    --c-gray-600: #313131;
+    --c-gray-500: #969593;
+    --c-gray-400: #a6a6a6;
+    --c-gray-300: #bdbbb7;
+    --c-gray-200: #f1f1f1;
+    --c-gray-100: #ffffff;
+
+    --c-green-500: #008000;
+    --c-olive-500: #04b50a;
+
+    --c-white: var(--c-gray-100);
+
+    --c-text-primary: var(--c-gray-100);
+    --c-text-secondary: var(--c-gray-200);
+    --c-text-tertiary: var(--c-gray-500);
+}
+
+/* Headings */
+h1, h2 {
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+h1 {
+    font-size: 2rem;
+}
+
+h2 {
+    font-size: 1.5rem;
+    padding:10px;
+}
+h3 {
+    text-align: center;
+    margin: 20px 0px 20px 0px;
+}
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+}
+
+th, td {
+    padding: 0.5rem;
+    text-align: left;
+    border-bottom: 1px solid var(--c-gray-600);
+}
+
+th {
+    font-weight: bold;
+    color: var(--c-text-tertiary);
+}
+
+ul {
+    margin: 10px 0 0 -40px;
+}
+
+/* Forms */
+form {
+    margin-bottom: 2rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--c-text-tertiary);
+}
+
+input[type="text"],
+input[type="number"] {
+    padding: 0.5rem;
+    border: 1px solid var(--c-gray-600);
+    background-color: var(--c-gray-800);
+    color: var(--c-text-primary);
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
+input[type="submit"] {
+    padding: 0.5rem 1rem;
+    background-color: var(--c-olive-500);
+    color: var(--c-gray-900);
+    border: none;
+    cursor: pointer;
+}
+
+/* Buttons */
+.button-danger {
+    padding: 0.5rem 1rem;
+    background-color: #e74b4b;
+    color: var(--c-text-secondary);
+    border: none;
+    cursor: pointer;
+}
+
+.button-danger:hover {
+    background-color: var(--c-gray-600);
+}
+
+/* Stock chart */
+#stockChart {
+    height: 400px;
+    margin-bottom: 2rem;
+}
+
+/* Logout link */
+a {
+    color: var(--c-text-tertiary);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--c-text-primary);
+}
+
+
+.stocks-registered li {
+    width: 600px;
+    display: flex;
+    justify-content: space-between;
 }
 
 .stocks-section {
     display: flex;
-    flex-wrap: wrap;
-}
-
-.stocks-section .stocks-registered {
-    flex: 1;
-    margin-right: 20px;
-}
-
-.stocks-section .stocks-new{
-    flex: 1;
-}
-
-
-label {
-    display: inline-block;
-    width: 120px; 
-}
-
-.stocks-registered ul {
-    padding: 0;
-    list-style: none;
-}
-
-.stocks-registered li {
-    display: flex;
-    justify-content: space-between;
     align-items: center;
-    max-width: 400px; /* Adjust maximum length as needed */
+    justify-content: flex-start;
 }
 
-
-.stocks-registered form button.button-danger {
-    margin-left: 0; /* Remove left margin to align with the text */
-}
-/* Style the delete button */
-.stocks-registered form button.button-danger {
-    display: inline-block;
-    margin-left: 10px; /* Adjust margin as needed */
-    padding: 10px 20px;
-    border: none;
-    border-radius: 3px;
-    background-color: #007bff; /* Same color as the add stock button */
-    color: #fff;
-    cursor: pointer;
+.stocks-registered {
+    width: 600px; 
+    margin: 20px 0 20px 0;
 }
 
-.stocks-registered form button.button-danger:hover {
-    background-color: #0056b3; /* Same hover color as the add stock button */
+.stocks-new {
+    width: 500px; 
 }
 
-
-form {
-    margin: 0; /* Center the form horizontally */
-    max-width: 400px; /* Set the maximum width of the form */
-    padding: 10px; /* Add some padding */
-    border-radius: 5px;
+.stocks-new form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 50px 0 100px;
+    width:300px;
 }
 
-/* Style the submit button */
-input[type="submit"] {
-    display: block; 
-    margin: 20px auto 0; 
-    padding: 10px 20px;
-    border: none; 
-    border-radius: 3px; 
-    background-color: #007bff;
-    color: #fff; 
-    cursor: pointer; 
+.stocks-new form input[type="submit"] {
+    width: auto; /* Allow the button to take its natural width */
 }
 
-input[type="submit"]:hover {
-    background-color: #0056b3; 
-}
-
-table th {
-    padding: 10px;
-    background-color: #007bff;
-    color: #fff;
-    border-radius: 3px;
-}
-
-/* Style table cells */
-table td {
-    padding: 10px;
-}
 table {
-    margin: 0 auto; /* Center the table horizontally */
+    margin: 0 auto; /* Set left and right margins to auto to center the table */
+    width: 800px;
+}
+
+.user-data table {
+    margin: 0 auto; /* Set left and right margins to auto to center the table */
+    width: 1000px; /* Adjust the width of the table as needed */
 }
