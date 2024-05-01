@@ -1,17 +1,1 @@
-{
-    "AAPL": {
-        "company_name": "Apple Inc.",
-        "price": 150.0,
-        "volume": 1000
-    },
-    "GOOGL": {
-        "company_name": "Alphabet Inc.",
-        "price": 2500.0,
-        "volume": 500
-    },
-    "MSFT": {
-        "company_name": "Microsoft Corporation",
-        "price": 300.0,
-        "volume": 800
-    }
-}
+{"AAPL": {"company_name": "Apple Inc.", "price": 150.0, "volume": 1000}, "GOOGL": {"company_name": "Alphabet Inc.", "price": 2500.0, "volume": 500}, "MSFT": {"company_name": "Microsoft Corporation", "price": 300.0, "volume": 800}, "sa": {"company_name": "sap", "price": 10.0, "volume": 100, "prices": {}}}

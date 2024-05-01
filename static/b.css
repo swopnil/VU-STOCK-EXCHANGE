@@ -140,6 +140,37 @@ a {
     font-weight: bold; /* Set the font weight */
 	color: rgb(144, 139, 139);
 }
+.icon-button {
+	width: 3px;
+	height: 3px;
+	border-radius: 50%;
+	border: 0;
+	background-color: transparent;
+	
+	color: var(--c-text-primary);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: 0.25s ease;
+	flex-shrink: 0;
+	&.large {
+		width: 3px;
+		height: 3px;
+		font-size: 1.25em;
+	}
+
+	i {
+		transition: 0.25s ease;
+	}
+
+	&:hover,
+	&:focus {
+		background-color: var(--c-gray-600);
+		box-shadow: 0 0 0 4px var(--c-gray-800), 0 0 0 5px var(--c-text-tertiary);
+	}
+}
+
 
 
 .app-header-mobile {
@@ -349,36 +380,6 @@ a {
 	}
 }
 
-.icon-button {
-	width: 3px;
-	height: 3px;
-	border-radius: 50%;
-	border: 0;
-	background-color: transparent;
-	
-	color: var(--c-text-primary);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	cursor: pointer;
-	transition: 0.25s ease;
-	flex-shrink: 0;
-	&.large {
-		width: 3px;
-		height: 3px;
-		font-size: 1.25em;
-	}
-
-	i {
-		transition: 0.25s ease;
-	}
-
-	&:hover,
-	&:focus {
-		background-color: var(--c-gray-600);
-		box-shadow: 0 0 0 4px var(--c-gray-800), 0 0 0 5px var(--c-text-tertiary);
-	}
-}
 
 .tiles {
 	display: grid;
