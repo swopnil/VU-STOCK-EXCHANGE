@@ -709,6 +709,7 @@ def buy(symbol):
                         number = volume
                         query = "INSERT INTO transaction (username, timestamp, transaction_type, symbol, company_name, amount, number) VALUES (%s, %s, %s, %s, %s, %s, %s)"
                         cursor.execute(query, (username, transaction_time, transaction_type, symbol, company_name, amount, number))
+                        cursor.execute("INSERT INTO new_table (Username, Symbol, Volume) VALUES (%s, %s, %s)", (username, symbol, number))
                         cursor.close()
                         db.commit()
                         db.commit()
@@ -774,6 +775,7 @@ def sell(symbol):
                     number = volume
                     query = "INSERT INTO transaction (username, timestamp, transaction_type, symbol, company_name, amount, number) VALUES (%s, %s, %s, %s, %s, %s, %s)"
                     cursor.execute(query, (username, transaction_time, transaction_type, symbol, company_name, amount, number))
+                    cursor.execute("INSERT INTO new_table (Username, Symbol, Volume) VALUES (%s, %s, %s)", (username, symbol, number))
                     cursor.close()
                     db.commit()
                     
@@ -873,7 +875,6 @@ def add_stock():
             """)
             # Insert the new stock data into the table
             cursor.execute("INSERT INTO stocks_list (Symbol, CompanyName, Price, Volume) VALUES (%s, %s, %s, %s)", (symbol, company_name, price, volume))
-
             # Commit the transaction
             db.commit()
 

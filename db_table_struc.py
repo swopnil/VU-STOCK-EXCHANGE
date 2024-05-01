@@ -1,3 +1,4 @@
+import json
 import mysql.connector
 
 # Configure MySQL connection
@@ -8,6 +9,38 @@ db = mysql.connector.connect(
     passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
     database="Stock"
 )
+
+def update_db():
+    cursor = db.cursor()
+    alter_table_query = """
+    ALTER TABLE UserData
+    ADD COLUMN Cash FLOAT DEFAULT 0;
+    """
+    cursor.execute(alter_table_query)
+    db.commit()
+    cursor.close()
+    db.close()
+def create_db():
+    cursor = db.cursor()
+
+    # SQL statement to create the UserData table
+    create_table_query = """
+    CREATE TABLE UserData (
+        Username VARCHAR(255) PRIMARY KEY,
+        Money DECIMAL(10, 2),
+        Stocks JSON
+    )
+    """
+
+    # Execute the SQL statement
+    cursor.execute(create_table_query)
+
+    # Commit the transaction
+    db.commit()
+
+    # Close the cursor and database connection
+    cursor.close()
+    db.close()
 
 # Function to print out all tables and their headings
 def print_table_structure():
@@ -37,34 +70,44 @@ def print_table_structure():
 
 def print_new_table_structure():
     try:
-        cursor = db.cursor()
-
-        # Query to fetch the structure of the new table
+        cursor = db.cursor(dictionary=True)
+        # Query to fetch user data, their current money, and merged stocks
         query = """
-            SELECT ID.Username, ID.Money, new_table.Symbol, SUM(new_table.Volume) AS TotalVolume
-            FROM ID 
-            LEFT JOIN new_table ON ID.Username = new_table.Username 
-            GROUP BY ID.Username, ID.Money, new_table.Symbol
+        SELECT ID.Username, ID.Money, new_table.Symbol, SUM(new_table.Volume) AS TotalVolume
+        FROM ID 
+        LEFT JOIN new_table ON ID.Username = new_table.Username 
+        GROUP BY ID.Username, ID.Money, new_table.Symbol
         """
         cursor.execute(query)
         rows = cursor.fetchall()
-        merged_stocks = {}
-        # Process the data and merge stocks with the same symbol
+
+        user_data = {}
+
         for row in rows:
-            username = row[0]
-            money = row[1]
-            symbol = row[2]
-            volume = row[3]
-            if username not in merged_stocks:
-                merged_stocks[username] = {'Money': money, 'Stocks': {}}
-            if symbol not in merged_stocks[username]['Stocks']:
-                merged_stocks[username]['Stocks'][symbol] = volume
-            else:
-                merged_stocks[username]['Stocks'][symbol] += volume
+            username = row['Username']
+            money = row['Money']
+            symbol = row['Symbol']
+            total_volume = row['TotalVolume']
+            quant = float(total_volume) if total_volume is not None else 0
+            if username not in user_data:
+                user_data[username] = {'Username': username, 'Money': money, 'Stocks': {}}
+            if symbol is not None:
+                if symbol not in user_data[username]['Stocks']:
+                    user_data[username]['Stocks'][symbol] = quant
+                    
+                else:
+                    user_data[username]['Stocks'][symbol] += quant
         # Print the processed data
         print("New Table Data:")
-        for username, data in merged_stocks.items():
+        for username, data in user_data.items():
             print(f"Username: {username}, Money: {data['Money']}, Stocks: {data['Stocks']}")
+       
+        for username, data in user_data.items():
+            money = data['Money']
+            stocks_json = json.dumps(data['Stocks'])
+            
+            insert_query = "INSERT INTO UserData (Username, Money, Stocks) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE Money = VALUES(Money), Stocks = VALUES(Stocks)"
+            cursor.execute(insert_query, (username, money, stocks_json))
 
         cursor.close()
     except Exception as e:
@@ -145,8 +188,78 @@ def print_NTT():
     finally:
         cursor.close()
 
+def update_cash_column():
+    update_db()
+    try:
+        cursor = db.cursor(dictionary=True)
+        # Fetch user data including money and stocks
+        query = """
+            SELECT Username, Money, Stocks
+            FROM UserData
+        """
+        cursor.execute(query)
+        rows = cursor.fetchall()
+
+        for row in rows:
+            username = row['Username']
+            money = row['Money']
+            stocks = json.loads(row['Stocks'])
+
+            # Calculate cash for each user
+            stocks_value = sum(price * quantity for price, quantity in stocks.items())
+            cash =round((money - stocks_value), 2)
+
+            # Update UserData table with cash value
+            update_query = """
+                UPDATE UserData
+                SET Cash = %s
+                WHERE Username = %s
+            """
+            cursor.execute(update_query, (cash, username))
+
+        db.commit()
+        cursor.close()
+        print("Cash column updated successfully!")
+
+    except Exception as e:
+        db.rollback()
+        print("Error updating cash column:", e)
+
+def print_user_data():
+    try:
+        cursor = db.cursor(dictionary=True)
+        query = """
+            SELECT Username, Money, Stocks, Cash
+            FROM UserData
+        """
+        cursor.execute(query)
+        rows = cursor.fetchall()
+
+        if not rows:
+            print("No data found in the UserData table.")
+        else:
+            print("Data from the UserData table:")
+            for row in rows:
+                username = row['Username']
+                money = row['Money']
+                stocks = json.loads(row['Stocks'])
+                cash = row['Cash']
+
+                print(f"\nUsername: {username}")
+                print(f"Money: {money}")
+                print("Stocks:")
+                for stock, quantity in stocks.items():
+                    print(f"  {stock}: {quantity}")
+                print(f"Cash: {cash}")
+
+        cursor.close()
+
+    except Exception as e:
+        print("Error fetching user data:", e)
+
 if __name__ == "__main__":
     # print_new_table_structure()
+    # update_cash_column()
     print_table_structure()
-    print_bank_data()
-    print_NTT()
+    # print_user_data()
+
