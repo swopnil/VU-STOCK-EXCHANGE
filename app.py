@@ -179,14 +179,13 @@ def add_money():
                 result = cursor.fetchone()
                 cursor.close()
                 if result:
-                    if decrease_balance(card_holder_name, amount):
-                        update_available_money(username,amount)
-                        available_money=fetch_available_money(username)
+                    decrease_balance(card_holder_name, amount)
+                    update_available_money(username,amount)
+                    available_money=fetch_available_money(username)
                        
 
-                        flash(f'Payment of ${amount} successful', 'success')
-                    else:
-                        flash('Error updating balance', 'error')
+                    flash(f'Payment of ${amount} successful', 'success')
+                
             elif payment_method == 'bank':
                 bank_name = request.form['bank_name']
                 account_number = request.form['account_number']
@@ -202,14 +201,13 @@ def add_money():
                 cursor.close()
 
                 if result:
-                    if decrease_balance(card_holder_name, amount):
-                        update_available_money(username,amount)
-                        available_money=fetch_available_money(username)
+                    decrease_balance(card_holder_name, amount)
+                    update_available_money(username,amount)
+                    available_money=fetch_available_money(username)
 
 
-                        flash(f'Payment of ${amount} successful', 'success')
-                    else:
-                        flash('Error updating balance', 'error')
+                    flash(f'Payment of ${amount} successful', 'success')
+                   
                 else:
                     flash('Invalid bank details', 'error')
 
@@ -319,13 +317,12 @@ def withdraw():
                 result = cursor.fetchone()
                 cursor.close()
                 if result:
-                    if increase_balance(card_holder_name, amount):
-                        update_available_money1(username,amount)
-                        available_money=fetch_available_money(username)
+                    
+                    update_available_money1(username,amount)
+                    available_money=fetch_available_money(username)
 
-                        flash(f'Withdraw of ${amount} successful', 'success')
-                    else:
-                        flash('Error updating balance', 'error')
+                    flash(f'Withdraw of ${amount} successful', 'success')
+                    
             elif payment_method == 'bank':
                 bank_name = request.form['bank_name']
                 account_number = request.form['account_number']
@@ -341,20 +338,22 @@ def withdraw():
                 cursor.close()
 
                 if result:
-                    if increase_balance(card_holder_name, amount):
-                        update_available_money1(username, amount)
-                        available_money=fetch_available_money(username)
+                    increase_balance(card_holder_name, amount)
+                    update_available_money1(username, amount)
+                    available_money=fetch_available_money(username)
 
 
-                        flash(f'Withdraw of ${amount} successful', 'success')
-                    else:
-                        flash('Error updating balance', 'error')
+                    flash(f'Withdraw of ${amount} successful', 'success')
+                   
                 else:
                     flash('Invalid bank details', 'error')
+                
 
         except Exception as e:
             flash(f'Error: {str(e)}', 'error')
             # Log the error for debugging purposes
+    print(available_money)
+    available_money=fetch_available_money(username)
 
     # Render the add_money.html template with flash messages
     return render_template('withdraw.html',available_money=available_money)
@@ -691,7 +690,7 @@ def buy(symbol):
                     # Deduct the cost of purchased stocks from available money
                     if update_available_money(username, -total_cost):
                         # Increase the price by 10% when buying
-                        buy_ratio = 0.1
+                        buy_ratio = volume/stocks[symbol]['volume'] 
                         new_price = stocks[symbol]['price'] * (1 + buy_ratio)
                         # Decrease the volume of available stocks
                         stocks[symbol]['volume'] -= volume
@@ -874,7 +873,7 @@ def add_stock():
             """)
             # Insert the new stock data into the table
             cursor.execute("INSERT INTO stocks_list (Symbol, CompanyName, Price, Volume) VALUES (%s, %s, %s, %s)", (symbol, company_name, price, volume))
-    
+
             # Commit the transaction
             db.commit()
 
@@ -1001,7 +1000,6 @@ def get_d():
     # Pass the fetched data to the dash.html template
     return render_template('dash.html',username=username, available_stocks=available_stocks, stocks=OrderedDict(sorted(stocks.items())),available_money=available_money,transfers=transfers)
 @app.route('/trade')
-
 def trade():
     db = mysql.connector.connect(
             host="stock100-swopnil100-1453.h.aivencloud.com",
@@ -1019,7 +1017,6 @@ def trade():
     query_transactions = "SELECT timestamp, transaction_type, symbol, company_name, amount, number FROM transaction WHERE username = %s ORDER BY timestamp DESC LIMIT 5"
     cursor.execute(query_transactions, (username,))
     transfers = cursor.fetchall()
-    
     cursor.close()
     
      # Implement this function to fetch available stocks from your database
