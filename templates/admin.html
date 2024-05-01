@@ -11,17 +11,17 @@
    <script src="{{ url_for('static', filename='highcharts/highstock.js') }}"></script>
 </head>
 <body>
-   <h1 id="welcome">Admin Page</h1>
-   <p>Welcome, Admin!</p>
+   <h1 id="welcome">Welcome, Admin</h1>
    <div class="stocks-section">
+    <h2>Here are the registered stocks:</h2>
        <div class="stocks-registered">
-           <p>Here are the registered stocks:</p>
            <ul>
             {% for symbol, data in stocks.items() %}
             <li>{{ symbol }}: {{ data['company_name'] }} - ${{ data['price'] }} (Volume: {{ data['volume'] }})
                 <form action="{{ url_for('delete_stock', symbol=symbol) }}" method="post" style="display: inline;">
                     <input type="hidden" name="_method" value="DELETE">
-                    <button type="submit" class="button-danger">Delete</button>
+                    <div class="delete-button"><button type="submit" class="button-danger" style="font-size: 15px; border-radius: 5px;">Delete</button>
+                    </div>                    
                 </form>
             </li>
             {% endfor %}
@@ -38,19 +38,20 @@
            <input type="number" id="price" name="price" required><br>
            <label for="volume">Volume:</label>
            <input type="number" id="volume" name="volume" required><br>
-           <input type="submit" value="Add Stock">
+           <input type="submit" value="Add Stock" style="border-radius: 5px;font-size: 15px;">
        </form>
        </div>
    </div>
 
 
    <h2 id ="available">Available Stocks</h2>
-   <select id="stockSelect" onchange="updateGraph()">
+   <select id="stockSelect" onchange="updateGraph()" style = "background-color: #333333; color:white; margin: 0 0 0 250px;">
        {% for symbol, data in stocks.items() %}
            <option value="{{ symbol }}">{{ symbol }}</option>
        {% endfor %}
    </select>
-   <div id="stockChart" style="height: 400px; min-width: 310px"></div>
+   <div id="stockChart" style="height: 450px; width: 1000px; margin: 0 auto;"></div>
+   <h3>Stock Data</h3>
    <table>
        <thead>
            <tr>
@@ -73,7 +74,7 @@
    </table>
 
    <div class="user-data">
-    <h2>User Data</h2>
+    <h3 style="margin-top: 40px;">User Data</h3>
     <table>
         <thead>
             <tr>
