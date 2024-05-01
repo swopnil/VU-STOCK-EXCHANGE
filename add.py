@@ -13,7 +13,7 @@ db = mysql.connector.connect(
 cursor = db.cursor()
 
 # Define the SQL query
-sql_query = "SELECT * FROM `transaction`"
+sql_query = "SELECT * FROM `stocks_list`"
 
 # Execute the SQL query
 cursor.execute(sql_query)

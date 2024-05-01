@@ -10,6 +10,7 @@ import requests
 
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from datetime import datetime, timedelta
+
 import mysql.connector
 import threading
 import time
@@ -473,7 +474,7 @@ def login():
         
         if username == 'admin' and password == 'admin':  # Check if username and password are both 'admin'
             session['username'] = username
-            flash('You were successfully logged in as admin', 'success')
+            
             return redirect(url_for('admin'))  # Redirect to admin page
             
         cursor = db.cursor()
@@ -483,7 +484,7 @@ def login():
         
         if user:
             session['username'] = username
-            flash('You were successfully logged in', 'success')
+        
             return redirect(url_for('user'))  # Redirect to user.html after successful login
         else:
             flash('Invalid username or password', 'error')
@@ -595,7 +596,7 @@ def fetch_user_data():
 @app.route('/logout')
 def logout():
     session.pop('username', None)
-    flash('You were successfully logged out', 'success')
+
     return redirect(url_for('index'))
 
 from flask import request

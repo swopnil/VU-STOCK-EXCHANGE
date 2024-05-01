@@ -34,24 +34,24 @@
                     </div>
                 </div>
                 <div class="app-header-navigation">
-                    <div class="tabs">
+                    <div class="tabs" >
                         <a href="#">
                             Overview
                         </a>
-                        <a href="#" class="active">
-                            Payments
+                        <a href="{{ url_for('get_d') }}" >
+                            Dashboard
                         </a>
-                        <a href="#">
-                            Cards
+                        <a href="{{ url_for('trade') }}">
+                            Trade
+                        </a>
+                        <a href="{{ url_for('get_news') }}" class="active">
+                            News
+                        </a>
+                        <a href="{{ url_for('withdraw') }}">
+                            Withdraw
                         </a>
                         <a href="#">
                             Account
-                        </a>
-                        <a href="#">
-                            System
-                        </a>
-                        <a href="#">
-                            Business
                         </a>
                     </div>
                 </div>
