@@ -883,56 +883,31 @@ def delete_stock(symbol):
     return redirect(url_for('admin'))
 
 
-# @app.route('/money')
-# def get_money():
-#     if 'username' in session:
-#         username = session['username']
-#         # Connect to the database and fetch the user's money
-#         db = mysql.connector.connect(
-#         host="stock100-swopnil100-1453.h.aivencloud.com",
-#         port=11907,
-#         user="avnadmin",
-#         passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
-#         database="Stock",
-#         )
-#         cursor = db.cursor()
-#         query = "SELECT money FROM ID WHERE username = %s"
-#         cursor.execute(query, (username,))
-#         result = cursor.fetchone()
-#         cursor.close()
-#         db.close()
-#         if result:
-#             money = result[0]
-#             return jsonify({'money': money})
-#     return jsonify({'money': None})
-
-
-from datetime import datetime
-
 @app.route('/money')
 def get_money():
     if 'username' in session:
         username = session['username']
         # Connect to the database and fetch the user's money
         db = mysql.connector.connect(
-            host="stock100-swopnil100-1453.h.aivencloud.com",
-            port=11907,
-            user="avnadmin",
-            passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
-            database="Stock",
+        host="stock100-swopnil100-1453.h.aivencloud.com",
+        port=11907,
+        user="avnadmin",
+        passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
+        database="Stock",
         )
         cursor = db.cursor()
         query = "SELECT money FROM ID WHERE username = %s"
         cursor.execute(query, (username,))
-        result = cursor.fetchall()
+        result = cursor.fetchone()
         cursor.close()
         db.close()
         if result:
             money = result[0]
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            return jsonify({'username': username, 'money': money, 'timestamp': timestamp})
-    return jsonify({'username': None, 'money': None, 'timestamp': None})
+            return jsonify({'money': money})
+    return jsonify({'money': None})
 
+
+from datetime import datetime
 
 @app.route('/prices/<symbol>')
 def get_prices(symbol):    
