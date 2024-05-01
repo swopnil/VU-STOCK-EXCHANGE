@@ -534,11 +534,11 @@ def fetch_available_money(username):
         passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
         database="Stock",
         )
-        cursor = db.cursor()
+        cursor10 = db.cursor()
         query = "SELECT Money FROM ID WHERE Username = %s"
-        cursor.execute(query, (username,))
-        result = cursor.fetchone()
-        cursor.close()
+        cursor10.execute(query, (username,))
+        result = cursor10.fetchone()
+        cursor10.close()
         db.close()
         
         if result:
@@ -603,22 +603,6 @@ from flask import request
 from datetime import datetime
 
 
-# Function to fetch available money for a user
-def fetch_available_money(username):
-    try:
-        cursor = db.cursor()
-        query = "SELECT Money FROM ID WHERE Username = %s"
-        cursor.execute(query, (username,))
-        result = cursor.fetchone()
-        cursor.close()
-        if result:
-            return result[0]
-        else:
-            return None
-    except Exception as e:
-        print("Error fetching available money:", e)
-        return None
-
 # Function to update available money for a user
 def update_available_money(username, amount):
     try:
@@ -676,6 +660,15 @@ def update_my_stocks(username, symbol, volume_change):
 
 @app.route('/buy/<symbol>', methods=['POST'])
 def buy(symbol):
+    username=session['username']
+    available_money = fetch_available_money(username)
+
+    db = mysql.connector.connect(
+            host="stock100-swopnil100-1453.h.aivencloud.com",
+            port=11907,
+            user="avnadmin",
+            passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
+            database="Stock",)
     error_message = None
     if 'username' in session:
         username = session['username']
@@ -690,7 +683,7 @@ def buy(symbol):
                     # Deduct the cost of purchased stocks from available money
                     if update_available_money(username, -total_cost):
                         # Increase the price by 10% when buying
-                        buy_ratio = volume/stocks[symbol]['volume'] 
+                        buy_ratio = 1
                         new_price = stocks[symbol]['price'] * (1 + buy_ratio)
                         # Decrease the volume of available stocks
                         stocks[symbol]['volume'] -= volume
@@ -712,10 +705,8 @@ def buy(symbol):
                         cursor.execute("INSERT INTO new_table (Username, Symbol, Volume) VALUES (%s, %s, %s)", (username, symbol, number))
                         cursor.close()
                         db.commit()
-                        db.commit()
                         flash(f'You bought {volume} shares of {symbol} successfully', 'success')
                         flash(f'The price increased by {buy_ratio * 100}% due to buying', 'info')
-                        return redirect(url_for('user'))
                     else:
                         error_message = 'Error updating available money'
                 else:
@@ -726,80 +717,80 @@ def buy(symbol):
             error_message = 'Stock not found'
     else:
         error_message = 'Please log in'
-    
+
     username = session.get('username')
-    available_money = fetch_available_money(username)
     cursor = db.cursor()
     query = "SELECT Symbol, Volume FROM new_table WHERE Username = %s"
     cursor.execute(query, (username,))
     user_stocks = cursor.fetchall()
     cursor.close()
     return render_template('buy.html', username=username, stocks=OrderedDict(sorted(stocks.items())), available_money=available_money, user_stocks=user_stocks, error_message=error_message)
-
-
 @app.route('/sell/<symbol>', methods=['POST'])
 def sell(symbol):
+    username=session['username']
+    available_money = fetch_available_money(username)
+
+    db = mysql.connector.connect(
+            host="stock100-swopnil100-1453.h.aivencloud.com",
+            port=11907,
+            user="avnadmin",
+            passwd="AVNS_5RG3ixLOO6L1IRdRAC9",
+            database="Stock",)
+    error_message = None
     if 'username' in session:
         username = session['username']
         if symbol in stocks:
             volume = int(request.form['volume'])
-            # Check if the user owns the specified volume of the stock
-            cursor = db.cursor()
-            query = "SELECT Volume FROM new_table WHERE Username = %s AND Symbol = %s"
-            cursor.execute(query, (username, symbol))
-            result = cursor.fetchone()
-            cursor.close()
-            if result and result[0] >= volume:
-                # Calculate the sale amount
-                sale_amount = volume * stocks[symbol]['price']
-                amount = sale_amount
-                # Update available money
-                if update_available_money(username, sale_amount):
-                    # Decrease the price by 10% when selling
-                    sell_ratio = 0.1
-                    new_price = stocks[symbol]['price'] * (1 - sell_ratio)
-                    # Decrease the volume of available stocks
-                    stocks[symbol]['volume'] += volume
-                    # Update the price in the stocks dictionary
-                    stocks[symbol]['price'] = round(new_price, 2)
-                    
-                    # Update the user's stock portfolio in the database
-                    update_my_stocks(username, symbol, -volume)
-                    cursor = db.cursor()
-                    query = "UPDATE stocks_list SET Price = %s, Volume = Volume - %s WHERE Symbol = %s"
-                    cursor.execute(query, (new_price, volume, symbol))
-                    transaction_time = datetime.now()
-                    transaction_type = "sell"
-                    company_name = stocks[symbol]['company_name']
-                    
-                    number = volume
-                    query = "INSERT INTO transaction (username, timestamp, transaction_type, symbol, company_name, amount, number) VALUES (%s, %s, %s, %s, %s, %s, %s)"
-                    cursor.execute(query, (username, transaction_time, transaction_type, symbol, company_name, amount, number))
-                    cursor.execute("INSERT INTO new_table (Username, Symbol, Volume) VALUES (%s, %s, %s)", (username, symbol, number))
-                    cursor.close()
-                    db.commit()
-                    
-                    flash(f'You sold {volume} shares of {symbol} successfully', 'success')
-                    flash(f'The price decreased by {sell_ratio * 100}% due to selling', 'info')
-                    return redirect(url_for('user'))
+            sale_amount = volume * stocks[symbol]['price']
+
+            if stocks[symbol]['volume'] >= volume:
+                total_cost = volume * stocks[symbol]['price']
+                available_money = fetch_available_money(username)
+                if available_money is not None and available_money >= total_cost:
+                    # Deduct the cost of purchased stocks from available money
+                    if update_available_money(username, +total_cost):
+                        # Increase the price by 10% when buying
+                        buy_ratio = 1
+                        new_price = stocks[symbol]['price'] * (1 + buy_ratio)
+                        # Decrease the volume of available stocks
+                        stocks[symbol]['volume'] += volume
+                        # Update the price in the stocks dictionary
+                        stocks[symbol]['price'] = round(new_price, 2)
+                        # Ensure volume_change is an integer before calling update_my_stocks
+                        volume_change = int(volume)
+                        update_my_stocks(username, symbol, volume_change)
+                        cursor = db.cursor()
+                        query = "UPDATE stocks_list SET Price = %s, Volume = Volume + %s WHERE Symbol = %s"
+                        cursor.execute(query, (new_price, volume, symbol))
+                        transaction_time = datetime.now()
+                        transaction_type = "sell"
+                        company_name = stocks[symbol]['company_name']
+                        amount = sale_amount
+                        number = volume
+                        query = "INSERT INTO transaction (username, timestamp, transaction_type, symbol, company_name, amount, number) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+                        cursor.execute(query, (username, transaction_time, transaction_type, symbol, company_name, amount, number))
+                        cursor.execute("INSERT INTO new_table (Username, Symbol, Volume) VALUES (%s, %s, %s)", (username, symbol, number))
+                        cursor.close()
+                        db.commit()
+                        flash(f'You sold {volume} shares of {symbol} successfully', 'success')
+                    else:
+                        error_message = 'Error updating available money'
                 else:
-                    flash('Error updating available money', 'error')
+                    error_message = 'Insufficient funds'
             else:
-                flash('You don\'t own enough of this stock to sell or you don\'t own it at all!', 'error')
+                error_message = 'Not enough stocks available'
         else:
-            flash('Stock not found', 'error')
+            error_message = 'Stock not found'
     else:
-        flash('Please log in', 'error')
-    
+        error_message = 'Please log in'
+
     username = session.get('username')
-    available_money = fetch_available_money(username)
     cursor = db.cursor()
     query = "SELECT Symbol, Volume FROM new_table WHERE Username = %s"
     cursor.execute(query, (username,))
     user_stocks = cursor.fetchall()
-    
-    return render_template('buy.html', username=username, stocks=OrderedDict(sorted(stocks.items())), available_money=available_money, user_stocks=user_stocks)
-
+    cursor.close()
+    return render_template('buy.html', username=username, stocks=OrderedDict(sorted(stocks.items())), available_money=available_money, user_stocks=user_stocks, error_message=error_message)
 @app.route('/mystocks')
 def mystocks():
     # Update the user_stocks list here
