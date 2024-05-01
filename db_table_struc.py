@@ -258,8 +258,8 @@ def print_user_data():
         print("Error fetching user data:", e)
 
 if __name__ == "__main__":
-    print_new_table_structure()
+    # print_new_table_structure()
     # update_cash_column()
-    # print_table_structure()
-    print_user_data()
+    print_table_structure()
+    # print_user_data()
 

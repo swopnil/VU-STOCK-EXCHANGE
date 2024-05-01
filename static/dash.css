@@ -638,7 +638,8 @@ a {
 	}
 }
 .payment-section {
-    margin-top: 2.5rem;
+    margin-top: -10px;
+	width:250px;
 }
 
 .payment-section h2 {
@@ -1141,7 +1142,7 @@ button {
 }
 .transfer-section-header, .stock-label {
     max-width: 200px;
-    margin: 20px 20px 0 0;
+    margin: 10px 20px 0 0;
     padding:0;
 
 }
