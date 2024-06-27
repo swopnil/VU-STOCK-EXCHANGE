@@ -664,7 +664,7 @@ def buy(symbol):
                     # Deduct the cost of purchased stocks from available money
                     if update_available_money(username, -total_cost):
                         # Increase the price by 10% when buying
-                        buy_ratio = 1
+                        buy_ratio = volume/stocks[symbol]['volume']
                         new_price = stocks[symbol]['price'] * (1 + buy_ratio)
                         # Decrease the volume of available stocks
                         stocks[symbol]['volume'] -= volume
@@ -731,8 +731,8 @@ def sell(symbol):
                     # Deduct the cost of purchased stocks from available money
                     if update_available_money(username, +total_cost):
                         # Increase the price by 10% when buying
-                        buy_ratio = 1
-                        new_price = stocks[symbol]['price'] * (1 + buy_ratio)
+                        buy_ratio = volume/stocks[symbol]['volume']
+                        new_price = stocks[symbol]['price'] * (1 - buy_ratio)
                         # Decrease the volume of available stocks
                         stocks[symbol]['volume'] += volume
                         # Update the price in the stocks dictionary
